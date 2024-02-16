@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Entity
-@Builder
+@Table(name = "refreshToken")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Builder
 public class RefreshToken {
 
     @Id
