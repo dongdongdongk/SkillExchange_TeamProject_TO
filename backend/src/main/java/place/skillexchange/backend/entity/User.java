@@ -24,13 +24,13 @@ import java.util.Set;
 public class User implements UserDetails {
 
     @Id
-    @Column(name = "user_id", length = 50, unique = true)
+    @Column(name = "user_id", length = 50, unique = true, nullable = false)
     private String id;
 
-    @Column(name = "password", length = 100)
+    @Column(name = "password", length = 100, nullable = false)
     private String password;
 
-    @Column(name = "email", length = 50)
+    @Column(name = "email", length = 50, nullable = false)
     private String email;
 
     @Column(name = "active")

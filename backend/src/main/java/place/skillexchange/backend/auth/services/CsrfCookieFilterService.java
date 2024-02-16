@@ -1,4 +1,4 @@
-package place.skillexchange.backend.auth.filter;
+package place.skillexchange.backend.auth.services;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-public class CsrfCookieFilter extends OncePerRequestFilter {
+public class CsrfCookieFilterService extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //HttpServletRequest에서 가능한 CsrfToken을 읽음
