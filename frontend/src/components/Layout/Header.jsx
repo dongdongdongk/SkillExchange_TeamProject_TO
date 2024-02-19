@@ -1,6 +1,9 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 const Header = () => {
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+
   return (
     <header className="header">
       <nav className="navbar container">
@@ -112,7 +115,7 @@ const Header = () => {
           </li> */}
           <li className="nav-item">
             <a href="contact.html" className="nav-link">
-                자주 묻는 질문
+              자주 묻는 질문
             </a>
           </li>
           <li className="nav-item mt-3.5 lg:hidden">
@@ -124,10 +127,17 @@ const Header = () => {
             </a>
           </li>
         </ul>
+
         <div className="order-1 ml-auto hidden items-center md:order-2 md:ml-0 lg:flex">
-          <a className="btn btn-primary btn-sm font-bold" href="sign-in">
-            로그인
-          </a>
+          {isAuthenticated ? (
+            <a className="btn btn-primary btn-sm font-bold" href="sign-in">
+              로그아웃
+            </a>
+          ) : (
+            <a className="btn btn-primary btn-sm font-bold" href="sign-in">
+              로그인
+            </a>
+          )}
         </div>
       </nav>
     </header>
