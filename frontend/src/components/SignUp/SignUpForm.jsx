@@ -4,6 +4,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 
+
 const SignUpForm = () => {
   const [visible, setVisible] = useState(false);
   const {
@@ -24,17 +25,33 @@ const SignUpForm = () => {
         process.env.REACT_APP_SERVER + `/v1/user/signUp`,
         formData
       );
-      const activeToken = response.data.activeToken;
-      localStorage.setItem("activeToken", activeToken);
+    
       console.log("서버응답", response.data);
-      toast.success(response.data.responseBasic);
+      toast.success(response.data.responseBasic.returnMessage);
       // window.location.replace("/");
     } catch (error) {
       console.error("응답에러", error);
-      toast.error(error.message);
+  
+      // 서버 응답에 따라 다르게 처리
+      if (error.response) {
+        // 서버 응답이 있는 경우 (예: 4xx, 5xx 에러)
+        console.error("서버 응답 데이터:", error.response.data);
+  
+        // 서버에서 온 에러 메시지 출력
+        toast.error(error.response.data.details[0]);
+  
+        // 서버에서 온 상세 내용 출력
+        if (error.response.data.details) {
+          console.error("상세 내용:", error.response.data.details);
+        }
+      } else if (error.request) {
+        // 요청이 전혀 이루어지지 않은 경우
+        console.error("요청 오류:", error.request);
+      } else {
+        // 오류를 발생시킨 요청을 설정하는 중에 문제가 발생한 경우
+        console.error("오류 메시지:", error.message);
+      }
     }
-
-    console.log("FORM SUBMITTED");
   };
 
   const handleError = (errors) => {};

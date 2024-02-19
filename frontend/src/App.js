@@ -25,7 +25,7 @@ const App = () => {
           <Route path="sign-up" element={<SignUpPage />} />
           <Route path="sign-in" element={<SignInPage />} />
           <Route path="notice" element={<NoticePage />} />
-          <Route path="/v1/notices/list" element={<ActivationPage />} />
+          <Route path="active/:activeToken" element={<ActivationPage />} />
         </Routes>
         <ToastContainer
           position="top-center"
