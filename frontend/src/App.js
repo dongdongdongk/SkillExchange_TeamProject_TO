@@ -1,14 +1,22 @@
+import React, { useEffect } from "react";
 import "../src/styles/main.scss";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ToastContainer, toast,Bounce } from "react-toastify";
+import { ToastContainer, toast, Bounce } from "react-toastify";
+import { loadUser, clearErrors } from "./redux/user/userAction";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import SignInPage from "./pages/SignInPage";
 import NoticePage from "./pages/NoticePage";
 import ActivationPage from "./pages/ActivationPage";
-import 'react-toastify/dist/ReactToastify.css';
+import Store from "./redux/store";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
+  // 페이지 로딩 시 사용자 정보를 불러오는 액션 실행
+  useEffect(() => {
+    Store.dispatch(loadUser());
+    Store.dispatch(clearErrors());
+  }, []);
   return (
     <>
       <BrowserRouter>
@@ -16,11 +24,8 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="sign-up" element={<SignUpPage />} />
           <Route path="sign-in" element={<SignInPage />} />
-          <Route path="notice/list" element={<NoticePage />} />
-          <Route
-            path="/v1/notices/list"
-            element={<ActivationPage />}
-          />
+          <Route path="notice" element={<NoticePage />} />
+          <Route path="/v1/notices/list" element={<ActivationPage />} />
         </Routes>
         <ToastContainer
           position="top-center"

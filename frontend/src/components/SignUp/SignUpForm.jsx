@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 
 const SignUpForm = () => {
+  const [visible, setVisible] = useState(false);
   const {
     register,
     handleSubmit,
@@ -22,14 +24,14 @@ const SignUpForm = () => {
         process.env.REACT_APP_SERVER + `/v1/user/signUp`,
         formData
       );
-      const activeToken = response.data.activeToken
+      const activeToken = response.data.activeToken;
       localStorage.setItem("activeToken", activeToken);
       console.log("서버응답", response.data);
       toast.success(response.data.responseBasic);
       // window.location.replace("/");
     } catch (error) {
       console.error("응답에러", error);
-      toast.error("모고")
+      toast.error(error.message);
     }
 
     console.log("FORM SUBMITTED");
@@ -128,19 +130,34 @@ const SignUpForm = () => {
             {/* 비밀번호 입력 필드 */}
             <div className="form-group mt-4">
               <label htmlFor="password" className="form-label">
-                패스워드
+                비밀번호
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="form-control"
-                placeholder="비밀번호를 입력해주세요"
-                {...register("password", registerOptions.password)}
-              />
-              <p className="text-danger mt-3" style={{ color: "red" }}>
-                {errors?.password && errors.password.message}
-              </p>
+              <div className="password-input-container relative">
+                <input
+                  type={visible ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  className="form-control"
+                  placeholder="비밀번호를 입력해주세요"
+                  {...register("password", registerOptions.password)}
+                />
+                {visible ? (
+                  <AiOutlineEye
+                    className="absolute right-3 top-3 cursor-pointer"
+                    size={35}
+                    onClick={() => setVisible(false)}
+                  />
+                ) : (
+                  <AiOutlineEyeInvisible
+                    className="absolute right-3 top-3 cursor-pointer"
+                    size={35}
+                    onClick={() => setVisible(true)}
+                  />
+                )}
+                <p className="text-danger mt-3" style={{ color: "red" }}>
+                  {errors?.password && errors.password.message}
+                </p>
+              </div>
             </div>
 
             {/* 비밀번호 확인 입력 필드 */}
@@ -149,7 +166,7 @@ const SignUpForm = () => {
                 패스워드 체크
               </label>
               <input
-                type="password"
+                type={visible ? "text" : "password"}
                 id="passwordCheck"
                 name="passwordCheck"
                 className="form-control"
