@@ -15,25 +15,23 @@ const SignInForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("폼 데이터:", id, password);
-    const response = await axios
-      .post(
+  
+    try {
+      const response = await axios.post(
         process.env.REACT_APP_SERVER + `/v1/user/signIn`,
-        {
-          id,
-          password,
-        },
+        { id, password },
         { withCredentials: true }
-      )
-      .then((res) => {
-        const accessToken = response.data.accessToken;
-        localStorage.setItem("accessToken", accessToken);
-        toast.success("로그인 성공!");
-        navigate("/");
-        window.location.reload(true);
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
+      );
+  
+      const accessToken = response.headers['authorization'];
+      localStorage.setItem("accessToken", accessToken);
+  
+      toast.success("로그인 성공!");
+      navigate("/");
+      window.location.reload(true);
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
   };
 
   return (
