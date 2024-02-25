@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Lottie from "lottie-react";
 import axios from "axios";
-import LOGIN from "../../lottie/Login.json";
+// import LOGIN from "../../lottie/Login.json";
+import FIND from "../../lottie/FIND.json";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -20,27 +21,31 @@ const FindForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const findIdHandleSubmit = async (e) => {
     e.preventDefault();
-    console.log("폼 데이터:", id, password);
-
+    console.log("아이디 찾기 데이터", id)
     try {
-      const response = await axios.post(
-        process.env.REACT_APP_SERVER + `/v1/user/signIn`,
-        { id, password },
-        { withCredentials: true }
-      );
-
-      const accessToken = response.headers["authorization"];
-      localStorage.setItem("accessToken", accessToken);
-
-      toast.success("로그인 성공!");
-      navigate("/");
-      window.location.reload(true);
+        const response = await axios.post(
+            process.env.REACT_APP_SERVER + `/v1/user/emailToFindId`,{id}
+        );
+        toast.success(response.data.returnMessage);
     } catch (err) {
-      toast.error(err.response.data.message);
+        toast.error(err.response.data.message);
     }
-  };
+  }
+
+  const findPasswordHandleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("비밀번호 찾기 데이터", password)
+    try {
+        const response = await axios.post(
+            process.env.REACT_APP_SERVER + `/v1/user/emailToFindPw`,{password}
+        );
+        toast.success(response.data.returnMessage);
+    } catch (err) {
+        toast.error(err.response.data.message);
+    }
+  }
 
   return (
     <section className="">
@@ -73,7 +78,7 @@ const FindForm = () => {
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={findIdHandleSubmit}>
                     <div className="form-group">
                       <label htmlFor="email" className="form-label"></label>
                       <input
@@ -112,15 +117,15 @@ const FindForm = () => {
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={findPasswordHandleSubmit}>
                     <div className="form-group">
                       <label htmlFor="email" className="form-label"></label>
                       <input
                         type="email"
                         id="email"
                         required
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="form-control"
                         placeholder="이메일을 입력해주세요"
                       />
@@ -140,7 +145,7 @@ const FindForm = () => {
           <div className="auth-banner flex flex-col items-center justify-center bg-white py-16 lg:col-6">
             <div className="w-full text-center">
               <Lottie
-                animationData={LOGIN}
+                animationData={FIND}
                 style={{ width: "1000px", height: "1000px" }}
                 loop={true}
               />

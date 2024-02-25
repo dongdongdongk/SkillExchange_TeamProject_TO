@@ -115,7 +115,7 @@ const SignInForm = () => {
                 </p>
                 <p className="mt-6 text-center">
                   계정정보를 잊으셨나요?{" "}
-                  <Link to="/sign-up" className="text-dark">
+                  <Link to="/findAccount" className="text-dark">
                     계정 찾기
                   </Link>
                 </p>
