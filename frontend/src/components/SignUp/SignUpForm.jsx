@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 
 const SignUpForm = () => {
   const [visible, setVisible] = useState(false);
+  const [signUp, setSignUp] = useState(false);
   const {
     register,
     handleSubmit,
@@ -25,6 +26,7 @@ const SignUpForm = () => {
         process.env.REACT_APP_SERVER + `/v1/user/signUp`,
         formData
       );
+      setSignUp = true;
     
       console.log("서버응답", response.data);
       toast.success(response.data.returnMessage);
@@ -199,7 +201,7 @@ const SignUpForm = () => {
             <input
               className="btn btn-primary mt-10 block w-full"
               type="submit"
-              value="회원가입"
+              value={signUp ? "이메일 재발송" : "회원가입"}
             />
           </form>
         </div>

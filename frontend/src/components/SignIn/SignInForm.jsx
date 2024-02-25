@@ -15,17 +15,17 @@ const SignInForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("폼 데이터:", id, password);
-  
+
     try {
       const response = await axios.post(
         process.env.REACT_APP_SERVER + `/v1/user/signIn`,
         { id, password },
         { withCredentials: true }
       );
-  
-      const accessToken = response.headers['authorization'];
+
+      const accessToken = response.headers["authorization"];
       localStorage.setItem("accessToken", accessToken);
-  
+
       toast.success("로그인 성공!");
       navigate("/");
       window.location.reload(true);
@@ -109,9 +109,15 @@ const SignInForm = () => {
                 />
                 <p className="mt-6 text-center">
                   아직 회원이 아니신가요?{" "}
-                  <a className="text-dark" href="sign-up">
+                  <Link to="/sign-up" className="text-dark">
                     계정을 생성하세요!
-                  </a>
+                  </Link>
+                </p>
+                <p className="mt-6 text-center">
+                  계정정보를 잊으셨나요?{" "}
+                  <Link to="/sign-up" className="text-dark">
+                    계정 찾기
+                  </Link>
                 </p>
               </form>
             </div>

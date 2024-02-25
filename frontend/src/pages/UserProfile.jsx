@@ -3,6 +3,7 @@ import UserProfileHeader from "../components/UserProfile/UserProfileHeader";
 import UserProfileSidebar from "../components/UserProfile/UserProfileSidebar";
 import Header from "../components/Layout/Header";
 import Footer from "../components/Layout/Footer";
+import UserProfileMain from "../components/UserProfile/UserProfileMain";
 
 
 
@@ -10,9 +11,10 @@ import Footer from "../components/Layout/Footer";
 const UserProfile = () => {
   return (
     <>
+    
         <Header />
-        {/* <UserProfileHeader /> */}
-        <UserProfileSidebar />
+        
+        <UserProfileMain />
         <Footer />
     </>
   );
