@@ -27,7 +27,7 @@ const SignUpForm = () => {
       );
     
       console.log("서버응답", response.data);
-      toast.success(response.data.responseBasic.returnMessage);
+      toast.success(response.data.returnMessage);
       // window.location.replace("/");
     } catch (error) {
       console.error("응답에러", error);
