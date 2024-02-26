@@ -1,5 +1,6 @@
 import React from "react";
 import UserProfileSidebar from "./UserProfileSidebar";
+import UserProfileForm from "./UserProfileForm";
 
 const UserProfileMain = () => {
   return (
@@ -65,8 +66,9 @@ const UserProfileMain = () => {
                 data-tab-group="service-tab"
               >
                 {/* <h1 className="text-center">회원정보</h1> */}
-                <UserProfileSidebar />
+                {/* <UserProfileSidebar /> */}
                 {/* Content goes here */}
+                <UserProfileForm />
               </div>
             </div>
           </div>
