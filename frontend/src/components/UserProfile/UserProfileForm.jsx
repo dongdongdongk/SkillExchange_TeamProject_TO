@@ -3,16 +3,16 @@ import { IoHome } from "react-icons/io5";
 
 const UserProfileForm = () => {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex flex-row px-4 pb-2 pt-12">
-        <div className="mr-6 w-3/12">
+    <div className="min-h-3 ">
+      <div className="flex flex-row pb-2">
+        <div className="mr-3 w-3/12">
           <div className="mb-6 h-full rounded-xl bg-white px-6 py-4 shadow-lg">
           <div className="flex flex-col justify-between h-full">
           <div className="flex-grow">
             <div className="px-4 py-6 text-center border-b">
               <h1 className="text-xl font-bold leading-none"><span className="text-yellow-700">마이</span> 페이지</h1>
             </div>
-            <div className="p-4">
+            <div className="">
               <ul className="space-y-1">
                 <li>
                   <a href="javascript:void(0)" className="flex items-center bg-white rounded-xl font-bold text-sm text-yellow-900 py-3 px-4">
@@ -58,14 +58,14 @@ const UserProfileForm = () => {
 
         <div className="w-10/12">
           <div className="flex flex-row">
-            <div className="mr-2 w-7/12 rounded-xl shadow-lg   bg-white bg-no-repeat p-6">
+            <div className="mr-2 w-7/12 rounded-xl shadow-lg bg-white bg-no-repeat p-6">
               <p className="text-3xl text-black">
                 환영합니다!
                 <strong>김동현 님</strong>
               </p>
             </div>
 
-            <div className="ml-2 w-5/12 rounded-xl shadow-lg bg-white bg-no-repeat p-6">
+            <div className=" w-5/12 rounded-xl shadow-lg bg-white bg-no-repeat p-6">
               <p className="text-5xl text-indigo-900">
                 Inbox <br />
                 <strong>23</strong>
@@ -78,7 +78,7 @@ const UserProfileForm = () => {
               </a>
             </div>
           </div>
-          <div className="mt-6 flex h-64 flex-row">
+          <div className="mt-2 flex h-64 flex-row">
             <div className="w-full rounded-xl bg-white px-6 py-4 shadow-lg">
               a
             </div>
