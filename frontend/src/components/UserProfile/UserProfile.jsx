@@ -76,7 +76,6 @@ const ContactPage = () => {
   const [careerSkills, setCareerSkills] = useState("");
 
   const { user } = useSelector((state) => state.user);
-  const userInfo = user.id;
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -103,11 +102,16 @@ const ContactPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const id = userInfo;
+      const accessToken = localStorage.getItem("accessToken")
+      console.log(accessToken)
       try {
         const responseData = await axios.get(
-          process.env.REACT_APP_SERVER + `/v1/user/lookUp`,
-          { id }
+          process.env.REACT_APP_SERVER + `/v1/user/profile`,
+          {
+            headers: {
+              Authorization: accessToken, // accessToken을 Bearer 토큰으로 설정
+            },
+          }
         );
         // responseData로 각 인풋 필드의 초기값 업데이트
         setJob(responseData.data.job || "");
