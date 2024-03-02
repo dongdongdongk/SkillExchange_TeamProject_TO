@@ -45,10 +45,14 @@ const Header = () => {
           className="navbar-nav order-2 hidden w-full flex-[0_0_100%] lg:order-1 lg:flex lg:w-auto lg:flex-auto lg:justify-center lg:space-x-5"
         >
           <li className="nav-item">
-            <Link to="/" className="nav-link active">메인페이지</Link>
+            <Link to="/" className="nav-link active">
+              메인페이지
+            </Link>
           </li>
           <li className="nav-item">
-            <Link to="/notice" className="nav-link">공지사항</Link>
+            <Link to="/notice" className="nav-link">
+              공지사항
+            </Link>
           </li>
           <li className="nav-item">
             <a href="blog.html" className="nav-link">
@@ -65,51 +69,6 @@ const Header = () => {
               모집해요
             </a>
           </li>
-          {/* <li className="nav-item nav-dropdown group relative">
-            <span className="nav-link inline-flex items-center">
-              Pages
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
-            </span>
-            <ul className="nav-dropdown-list hidden group-hover:block lg:invisible lg:absolute lg:block lg:opacity-0 lg:group-hover:visible lg:group-hover:opacity-100">
-              <li className="nav-dropdown-item">
-                <a href="career.html" className="nav-dropdown-link">
-                  Career
-                </a>
-              </li>
-              <li className="nav-dropdown-item">
-                <a href="career-single.html" className="nav-dropdown-link">
-                  Career Single
-                </a>
-              </li>
-              <li className="nav-dropdown-item">
-                <a href="integrations.html" className="nav-dropdown-link">
-                  Integrations
-                </a>
-              </li>
-              <li className="nav-dropdown-item">
-                <a href="integration-single.html" className="nav-dropdown-link">
-                  Integration Single
-                </a>
-              </li>
-              <li className="nav-dropdown-item">
-                <a href="pricing.html" className="nav-dropdown-link">
-                  Pricing
-                </a>
-              </li>
-              <li className="nav-dropdown-item">
-                <a href="changelogs.html" className="nav-dropdown-link">
-                  Changelogs
-                </a>
-              </li>
-              <li className="nav-dropdown-item">
-                <a href="terms-conditions.html" className="nav-dropdown-link">
-                  Terms & Conditions
-                </a>
-              </li>
-            </ul>
-          </li> */}
           <li className="nav-item">
             <a href="contact.html" className="nav-link">
               자주 묻는 질문
@@ -127,14 +86,19 @@ const Header = () => {
 
         <div className="order-1 ml-auto hidden items-center md:order-2 md:ml-0 lg:flex">
           {isAuthenticated ? (
-            <a className="btn btn-primary btn-sm font-bold" href="sign-in">
-              로그아웃
-            </a>
+            <>
+              <Link to="/profile" className="btn btn-primary btn-sm mr-5 font-bold">
+                마이페이지
+              </Link>
+            
+              <a className="btn btn-primary btn-sm font-bold" href="logout">
+                로그아웃
+              </a>
+            </>
           ) : (
             <Link to="/sign-in" className="btn btn-primary btn-sm font-bold">
               로그인
             </Link>
-            
           )}
         </div>
       </nav>
