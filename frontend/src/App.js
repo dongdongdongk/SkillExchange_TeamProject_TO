@@ -12,6 +12,7 @@ import Store from "./redux/store";
 import "react-toastify/dist/ReactToastify.css";
 import UserProfile from "./pages/UserProfile";
 import FindAccountPage from "./pages/FindAccountPage";
+import NoticeDetail from "./pages/NoticeDetail";
 
 const App = () => {
   // 페이지 로딩 시 사용자 정보를 불러오는 액션 실행
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="active/:activeToken" element={<ActivationPage />} />
           <Route path="profile" element={<UserProfile />} />
           <Route path="findAccount" element={<FindAccountPage />} />
+          <Route path="notice-detail/:id" element={<NoticeDetail />} /> 
         </Routes>
         <ToastContainer
           position="top-center"
