@@ -149,6 +149,9 @@ const NoticeDetailComponent = () => {
     e.preventDefault();
 
     try {
+      // accessToken 가져오기
+      const accessToken = localStorage.getItem("accessToken");
+
       // 리퀘스트 값을 사용하여 새로운 댓글을 등록하는 POST 요청
       const response = await axios.post(
         process.env.REACT_APP_SERVER + `/v1/comment/register`,
@@ -157,6 +160,12 @@ const NoticeDetailComponent = () => {
           parentId: newCommentParentId, // parentId가 없는 경우 최상위 댓글이 됩니다.
           writer: user.id,
           content: newCommentContent,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+          },
         }
       );
       console.log(noticeId, newCommentParentId, user.id, newCommentContent);

@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { useSelector } from "react-redux";
 import axios from "axios";
 
 const CreateNotice = () => {
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
-  const [contents, setContents] = useState("");
+  const [content, setContent] = useState("");
+  const [writer, setWriter] = useState("")
+
+  const { user } = useSelector((state) => state.user);
 
   const handleFileChange = (e) => {
     e.preventDefault();
@@ -26,30 +30,64 @@ const CreateNotice = () => {
     ]);
   };
 
+  useEffect(() => {
+    if (user) {
+      // user가 정의되어 있을 때에만 초기값 업데이트
+      setWriter(user.id || "");
+    //   setAvatar(user.imgUrl || "");
+    }
+  }, [user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-        // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
-        const formData = new FormData();
-        files.forEach((file) => {
-          formData.append("files", file.file);
-        });
-        formData.append("title", title);
-        formData.append("contents", contents);
-  
-        // axios를 사용하여 서버로 데이터 전송
-        const response = await axios.post(process.env.REACT_APP_SERVER + `/v1/notices/register`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-  
-        console.log(response.data); // 성공 시 서버 응답을 출력
-      } catch (error) {
-        console.error("데이터를 전송하는 중 에러 발생:", error);
-      }
-    };
+      const accessToken = localStorage.getItem("accessToken");
+
+      const noticeDto = {
+        writer,
+        title,
+        content,
+      };
+
+      console.log(writer, title, content)
+
+      // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
+      const formData = new FormData();
+
+      const filesToUpload = files || [];
+      console.log(filesToUpload)
+      filesToUpload.forEach((file, index) => {
+        // 파일 필드의 이름을 설정 (filename 속성 추가)
+        formData.append(`noticeDto[${index}].files`, file.file, file.file.name);
+    });
+
+      // 나머지 데이터를 JSON 문자열로 변환하여 FormData에 추가
+      formData.append(
+        "noticeDto",
+        new Blob([JSON.stringify(noticeDto)], {
+          type: "application/json",
+        })
+      );
+
+      // axios를 사용하여 서버로 데이터 전송
+      const response = await axios.post(
+        process.env.REACT_APP_SERVER + `/v1/notices/register`,
+        formData,
+        {
+            withCredentials: true,
+            headers: {
+                Authorization: accessToken,
+                "Content-Type": "multipart/form-data",
+            },
+        }
+      );
+
+      console.log(response.data); // 성공 시 서버 응답을 출력
+    } catch (error) {
+      console.error("데이터를 전송하는 중 에러 발생:", error);
+    }
+  };
 
   return (
     <>
@@ -108,9 +146,9 @@ const CreateNotice = () => {
                     rows="10"
                     required
                     type="text"
-                    name="contents"
-                    value={contents}
-                    onChange={(e) => setContents(e.target.value)}
+                    name="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
                   ></textarea>
                 </div>
 
