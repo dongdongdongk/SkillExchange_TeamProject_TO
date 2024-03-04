@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import axios from "axios";
 
 const CreateNotice = () => {
   const [files, setFiles] = useState([]);
@@ -25,21 +26,30 @@ const CreateNotice = () => {
     ]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
-    const newForm = new FormData();
-
-    files.forEach((file) => {
-      newForm.append("files", file);
-    });
-    newForm.append("title", title);
-    newForm.append("contents", contents);
-    for (const entry of newForm.entries()) {
-      console.log(entry);
-    }
-  };
+    try {
+        // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append("files", file.file);
+        });
+        formData.append("title", title);
+        formData.append("contents", contents);
+  
+        // axios를 사용하여 서버로 데이터 전송
+        const response = await axios.post(process.env.REACT_APP_SERVER + `/v1/notices/register`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+  
+        console.log(response.data); // 성공 시 서버 응답을 출력
+      } catch (error) {
+        console.error("데이터를 전송하는 중 에러 발생:", error);
+      }
+    };
 
   return (
     <>
@@ -144,7 +154,6 @@ const CreateNotice = () => {
           </div>
         </div>
       </section>
-      {/* ./end blog-single */}
     </>
   );
 };

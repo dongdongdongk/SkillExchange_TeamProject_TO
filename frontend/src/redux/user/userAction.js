@@ -29,3 +29,11 @@ export const loadUser = createAsyncThunk("user/loadUser", async () => {
     throw error.response.data.message;
   }
 });
+
+
+
+export const clearUser = createAsyncThunk("user/clearUser", async () => {
+
+  return null;
+
+})

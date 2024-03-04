@@ -4,7 +4,7 @@ import Footer from "../components/Layout/Footer";
 import NoticeDetailComponent from "../components/NoticeDetail/NoticeDetailComponent";
 
 
-const NoticeDetail = () => {
+const NoticeDetailPage = () => {
   return (
     <>
       <Header />
@@ -15,4 +15,4 @@ const NoticeDetail = () => {
   );
 };
 
-export default NoticeDetail;
+export default NoticeDetailPage;

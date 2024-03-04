@@ -1,42 +1,43 @@
 import React, { useState, useEffect  } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { Link, useParams } from "react-router-dom";
+import axios from "axios";
 
-const initialData = {
-  id: 8,
-  writer: "admin",
-  title: "공지합니다",
-  content: "유저를 늘리세요",
-  regDate: "2024-02-29T08:48:31.702298",
-  modDate: "2024-02-29T08:48:31.702298",
-  imgUrl: [
-    "https://contenthub-static.grammarly.com/blog/wp-content/uploads/2023/09/Table_of_Contents.png",
-    "https://i0.wp.com/cmosshoptalk.com/wp-content/uploads/2022/01/Contents-page00.png?fit=1000%2C720&ssl=1",
-  ],
-  returnCode: 200,
-  returnMessage: "조회하는데 성공하였습니다.",
-};
+
 
 const UpdateNotice = () => {
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
+  const { noticeId } = useParams();
 
   useEffect(() => {
-    // 초기 데이터가 있을 경우 폼 초기화
-    if (initialData && initialData.imgUrl) {
-      setTitle(initialData.title || "");
-      setContents(initialData.content || "");
-  
-      // 초기 이미지 URL 배열을 객체로 변환하여 files 상태에 설정
-      const initialImages = initialData.imgUrl.map((url, index) => ({
-        file: null, // 이미지 파일이 아니므로 null
-        preview: url,
-        id: index.toString(), // 각 이미지에 고유한 ID 부여
-      }));
-  
-      setFiles(initialImages);
-      console.log("배열 이미지",initialImages)
-    }
+    const fetchNoticeData = async () => {
+      try {
+        // 서버에서 공지사항 데이터를 가져오는 GET 요청
+        const response = await axios.get(process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`);
+        const noticeData = response.data;
+
+        // 가져온 데이터를 상태에 설정
+        setTitle(noticeData.title || "");
+        setContents(noticeData.content || "");
+
+        // 초기 이미지 URL 배열을 객체로 변환하여 files 상태에 설정
+        const initialImages = noticeData.imgUrl.map((url, index) => ({
+          file: null, // 이미지 파일이 아니므로 null
+          preview: url,
+          id: index.toString(), // 각 이미지에 고유한 ID 부여
+        }));
+
+        setFiles(initialImages);
+        console.log("배열 이미지", initialImages);
+      } catch (error) {
+        console.error("데이터를 불러오는 중 에러 발생:", error);
+      }
+    };
+
+    // 페이지 로드 시 데이터 불러오기
+    fetchNoticeData();
   }, []);
 
   const handleFileChange = (e) => {
@@ -58,19 +59,33 @@ const UpdateNotice = () => {
     ]);
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
-    const newForm = new FormData();
+    try {
+      // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("files", file.file);
+      });
+      formData.append("title", title);
+      formData.append("contents", contents);
 
-    files.forEach((file) => {
-      newForm.append("files", file);
-    });
-    newForm.append("title", title);
-    newForm.append("contents", contents);
-    for (const entry of newForm.entries()) {
-      console.log(entry);
+      // axios를 사용하여 서버로 데이터 업데이트를 위한 PATCH 요청
+      const response = await axios.patch(
+        "http://localhost:3001/notices",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response.data); // 성공 시 서버 응답을 출력
+    } catch (error) {
+      console.error("데이터를 업데이트하는 중 에러 발생:", error);
     }
   };
 
