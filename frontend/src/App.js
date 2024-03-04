@@ -13,6 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
 import UserProfile from "./pages/UserProfile";
 import FindAccountPage from "./pages/FindAccountPage";
 import NoticeDetail from "./pages/NoticeDetail";
+import CreateNoticePage from "./pages/CreateNoticePage";
+import UpdateNoticePage from "./pages/UpdateNoticePage";
 
 const App = () => {
   // 페이지 로딩 시 사용자 정보를 불러오는 액션 실행
@@ -32,6 +34,8 @@ const App = () => {
           <Route path="profile" element={<UserProfile />} />
           <Route path="findAccount" element={<FindAccountPage />} />
           <Route path="notice-detail/:id" element={<NoticeDetail />} /> 
+          <Route path="notice-create" element={<CreateNoticePage />} />
+          <Route path="notice-update" element={<UpdateNoticePage />} />
         </Routes>
         <ToastContainer
           position="top-center"

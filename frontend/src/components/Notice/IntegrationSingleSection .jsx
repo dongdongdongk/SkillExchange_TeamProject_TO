@@ -1,5 +1,6 @@
 import React from "react";
 import TableForm from "../Share/TableForm";
+import { Link } from "react-router-dom";
 
 const IntegrationSingleSection = () => (
   <section className="integration-single section pt-10">
@@ -17,20 +18,21 @@ const IntegrationSingleSection = () => (
                 alt=""
               /> */}
               <h1 className="mt-6">공지사항</h1>
-              <a className="btn btn-primary mt-8 px-10" href="#">
-                Integrate Webflow
-              </a>
+              <Link to="/notice-create" className="btn btn-primary mt-8 px-10">
+                글 등록하기
+              </Link>
             </div>
             <div className="my-12 border-y border-border py-3">
-                <TableForm />
-            </div>
-            
+              <h4 className="h5 ml-2 mt-2 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
+                공지사항
+              </h4>
+              <TableForm />
             </div>
           </div>
         </div>
       </div>
+    </div>
   </section>
 );
-
 
 export default IntegrationSingleSection;

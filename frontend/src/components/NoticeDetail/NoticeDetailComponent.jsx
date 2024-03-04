@@ -1,73 +1,6 @@
-import React from "react";
-
-const data = {
-  id: 8,
-  writer: "admin",
-  title: "공지합니다",
-  content: "유저를 늘리세요",
-  regDate: "2024-02-29T08:48:31.702298",
-  modDate: "2024-02-29T08:48:31.702298",
-  imgUrl: [
-    "https://skillexcahnge.s3.ap-northeast-2.amazonaws.com/images/mang.jpg",
-    "https://skillexcahnge.s3.ap-northeast-2.amazonaws.com/images/%EB%A7%9D%EA%B8%80%EC%9D%B41.jpg",
-  ],
-  returnCode: 200,
-  returnMessage: "조회하는데 성공하였습니다.",
-};
-
-const commentData = [
-  {
-    id: 1,
-    content: "댓글 작성합니다.",
-    userId: "alswl3359",
-    imgUrl:
-      "https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg",
-    children: [
-      {
-        id: 4,
-        content: "댓글 되나요.",
-        userId: "alswl3359",
-        imgUrl:
-          "https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg",
-        children: [
-          {
-            id: 5,
-            content: "아주 잘되는듯? 대댓글~.",
-            userId: "alswl3359",
-            imgUrl:
-              "https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg",
-            children: [
-              {
-                id: 6,
-                content: "댓글 작성합니다222222222.",
-                userId: "alswl3359",
-                imgUrl:
-                  "https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 3,
-    content: "머리아파용.",
-    userId: "alswl3359",
-    imgUrl:
-      "https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg",
-    children: [
-      {
-        id: 8,
-        content: "대댓글을 작성해보자",
-        userId: "alswl3359",
-        imgUrl:
-          "https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg",
-        children: [],
-      },
-    ],
-  },
-];
+import React, { useMemo, useEffect, useState } from "react";
+import { Link, useParams  } from "react-router-dom";
+import axios from "axios";
 
 const Comment = ({ comment }) => (
   <div className="comment flex space-x-4 border-b border-border py-8">
@@ -90,13 +23,6 @@ const Comment = ({ comment }) => (
       </p>
       <p className="mt-5">{comment.content}</p>
     </div>
-    {comment.children && comment.children.length > 0 && (
-      <div className="ml-8">
-        {comment.children.map((childComment) => (
-          <Comment key={childComment.id} comment={childComment} />
-        ))}
-      </div>
-    )}
   </div>
 );
 
@@ -106,12 +32,81 @@ const CommentSection = ({ comments }) => (
       댓글
     </h3>
     {comments.map((comment) => (
-      <Comment key={comment.id} comment={comment} />
+      <div key={comment.id}>
+        <Comment comment={comment} />
+        {renderReplies(comment.children)}
+      </div>
     ))}
   </div>
 );
 
+const ReplayComment = ({ comment }) => (
+  <div className="comment ml-3 flex space-x-4 border-b border-border py-8">
+    <img src="../images/icons/replay-arrow.svg" alt="commentArrow" />
+    <img
+      src={comment.imgUrl}
+      className="h-[70px] w-[70px] rounded-full"
+      alt=""
+    />
+    <div>
+      <h4 className="font-primary text-lg font-medium capitalize">
+        {comment.userId}
+      </h4>
+      <p className="mt-2.5">
+        {comment.regDate}
+        <a className="ml-4 text-primary" href="#">
+          Replay
+        </a>
+      </p>
+      <p className="mt-5">{comment.content}</p>
+    </div>
+  </div>
+);
+
+const renderReplies = (replies) =>
+  replies &&
+  replies.length > 0 && (
+    <div className="ml-3">
+      {replies.map((reply) => (
+        <div key={reply.id}>
+          <ReplayComment comment={reply} />
+          {renderReplies(reply.children)}
+        </div>
+      ))}
+    </div>
+  );
+
 const NoticeDetailComponent = () => {
+  const  noticeId  = useParams();
+  const [notice, setNotice] = useState({});
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    const fetchNoticeData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/noticeId/8`);
+        setNotice(response.data);
+      } catch (error) {
+        console.error("데이터를 불러오는 중 에러 발생:", error);
+      }
+    };
+
+    // useParams로 가져온 noticeId를 사용하여 댓글 데이터를 불러오기 위한 함수
+    const fetchCommentData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/comments`);
+        setComments(response.data);
+      } catch (error) {
+        console.error("댓글을 불러오는 중 에러 발생:", error);
+      }
+    };
+
+    // 페이지 로드 시 데이터 불러오기
+    fetchNoticeData();
+    fetchCommentData();
+  }, [noticeId]);
+  console.log(notice.title)
+
   return (
     <section className="section blog-single">
       <div className="container">
@@ -120,67 +115,65 @@ const NoticeDetailComponent = () => {
             <img className="rounded-xl" src="images/blog-single.png" alt="" />
           </div>
           <div className="mt-10 max-w-[810px] lg:col-9">
-            <h1 className="h2">{data.title}</h1>
+            <div className="mb-4 flex items-center justify-between">
+              <h1 className="h2">{notice.title}</h1>
+              <Link to="/notice-update">
+                <button className="btn btn-outline-primary btn-sm">
+                  글 수정
+                </button>
+              </Link>
+            </div>
             <div className="mb-5 mt-6 flex items-center space-x-2">
               <div className="blog-author-avatar h-[58px] w-[58px] rounded-full border-2 border-primary p-0.5">
-                <img src="images/blog-author.png" alt="" />
+                <img src="../images/blog-author.png" alt="" />
               </div>
               <div>
-                <p className="text-dark">김동현</p>
-                <span className="text-sm">{data.regDate}</span>
+                <p className="text-dark">{notice.writer}</p>
+                <span className="text-sm">{notice.regDate}</span>
               </div>
             </div>
 
             <div className="content">
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nec et
-                ipsum ullamcorper venenatis fringilla. Pretium, purus eu nec
-                vulputate vel habitant egestas. Congue ornare at ipsum, viverra.
-                Vitae magna faucibus eros, lectus sociis. Etiam nunc amet id
-                dignissim. Feugiat id tempor vel sit in ornare turpis posuere.
-                Eu quisque integer non rhoncus elementum vel. Quis nec viverra
-                lectus augue nec praesent Laoreet mauris odio ut nec. Nisl, sed
-                adipiscing dignissim arcu placerat ornare pharetra nec in.
-                Ultrices in nisl potenti vitae tempus. Auctor consectetur luctus
-                eu in amet sagittis. Dis urna, vel hendrerit convallis Senectus
-                feugiat faucibus commodo egestas leo vitae in morbi. Enim arcu
-                dignissim mauris, eu, eget
+              {notice.content}
               </p>
 
-              <div className="blockquote my-10 rounded-xl bg-white px-16 py-8 lg:px-20">
+              {/* <div className="blockquote my-10 rounded-xl bg-white px-16 py-8 lg:px-20">
                 <blockquote className="text-2xl text-dark">
-                  A wise girls her limit to touch.To Repellat neque praesentium
-                  .The me an idea, so I as quickly To get.
+                  대통령은 국가의 독립·영토의 보전·국가의 계속성과 헌법을 수호할
+                  책무를 진다. 훈장등의 영전은 이를 받은 자에게만 효력이 있고,
                 </blockquote>
                 <p className="mb-0 mt-4">Darlene Robertson</p>
-              </div>
+              </div> */}
 
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nec et
-                ipsum ullamcorper venenatis fringilla. Pretium, purus eu nec
-                vulputate vel habitant egestas. Congue ornare at ipsum, viverra.
-                Vitae magna faucibus eros, lectus sociis. Etiam nunc amet id
-                dignissim. Feugiat id tempor vel sit in ornare turpis posuere.
-                Eu quisque integer non rhoncus elementum vel. Quis nec viverra
-                lectus augue nec praesent volutpat tortor. Ipsum eget sed tempus
-                luctus nisl. Ut etiam molestie mattis at faucibus mi at
-                pellentesque. Pellentesque morbi nunc, curabitur arcu euismod
-                suscipit. Duis mi sapien, nisl, pulvinar donec non dictum
+              {/* <p>
+                누구든지 병역의무의 이행으로 인하여 불이익한 처우를 받지
+                아니한다. 정부는 회계연도마다 예산안을 편성하여 회계연도 개시
+                90일전까지 국회에 제출하고, 국회는 회계연도 개시 30일전까지 이를
+                의결하여야 한다. 군인·군무원·경찰공무원 기타 법률이 정하는 자가
+                전투·훈련등 직무집행과 관련하여 받은 손해에 대하여는 법률이
+                정하는 보상외에 국가 또는 공공단체에 공무원의 직무상 불법행위로
+                인한 배상은 청구할 수 없다. 국민경제자문회의의 조직·직무범위
+                기타 필요한 사항은 법률로 정한다. 원장은 국회의 동의를 얻어
+                대통령이 임명하고, 그 임기는 4년으로 하며, 1차에 한하여 중임할
+                수 있다.
               </p>
 
               <p>
-                Laoreet mauris odio ut nec. Nisl, sed adipiscing dignissim arcu
-                placerat ornare pharetra nec in. Ultrices in nisl potenti vitae
-                tempus. Auctor consectetur luctus eu in amet sagittis. Dis urna,
-                vel hendrerit convallis cursus id. Senectus feugiat faucibus
-                commodo egestas leo vitae in morbi. Enim arcu dignissim mauris,
-                eu, eget pharetra odio amet pellentesque. Egestas nisi
-                adipiscing sed in lectus. Vitae ultrices malesuada aliquet
-                dignissim. Faucibus non tristique eu.
-              </p>
+                국교는 인정되지 아니하며, 종교와 정치는 분리된다. 대통령은
+                국가의 안위에 관계되는 중대한 교전상태에 있어서 국가를 보위하기
+                위하여 긴급한 조치가 필요하고 국회의 집회가 불가능한 때에 한하여
+                법률의 효력을 가지는 명령을 발할 수 있다. 국회의원의 선거구와
+                비례대표제 기타 선거에 관한 사항은 법률로 정한다. 재의의 요구가
+                있을 때에는 국회는 재의에 붙이고, 재적의원과반수의 출석과
+                출석의원 3분의 2 이상의 찬성으로 전과 같은 의결을 하면 그
+                법률안은 법률로서 확정된다. 의무교육은 무상으로 한다. 국회가
+                재적의원 과반수의 찬성으로 계엄의 해제를 요구한 때에는 대통령은
+                이를 해제하여야 한다.
+              </p> */}
             </div>
-            <CommentSection comments={commentData} />
-            <div className="comments">
+            <CommentSection comments={comments} />
+            {/* <div className="comments">
               <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
                 댓글
               </h3>
@@ -231,13 +224,15 @@ const NoticeDetailComponent = () => {
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
             <form className="comment-form" action="#" method="POST">
-              <p className="mb-4">LEAVE A REPLAY</p>
+              <h5 className="h5 mb-4 mt-4 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
+                댓글 등록
+              </h5>
               <div className="form-group">
                 <textarea cols="30" rows="10"></textarea>
               </div>
-              <div className="row mb-8">
+              {/* <div className="row mb-8">
                 <div className="form-group mt-8 md:col-6 lg:col-4">
                   <input type="text" placeholder="Name" />
                 </div>
@@ -247,8 +242,8 @@ const NoticeDetailComponent = () => {
                 <div className="form-group mt-8 md:col-6 lg:col-4">
                   <input type="text" placeholder="Website" />
                 </div>
-              </div>
-              <div className="form-group relative flex pl-6">
+              </div> */}
+              {/* <div className="form-group relative flex pl-6">
                 <input
                   className="absolute left-0 top-1"
                   type="checkbox"
@@ -258,11 +253,11 @@ const NoticeDetailComponent = () => {
                   Save my name, email, and website in this browser for the next
                   time I comment.
                 </label>
-              </div>
+              </div> */}
               <input
                 type="Submit"
-                className="btn btn-primary mt-8 min-w-[189px] cursor-pointer"
-                value="Post Comment"
+                className="btn btn-primary mt-4 min-w-[189px] cursor-pointer"
+                value="댓글 등록"
               />
             </form>
           </div>
