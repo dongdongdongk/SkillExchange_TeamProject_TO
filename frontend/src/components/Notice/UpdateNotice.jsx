@@ -1,44 +1,20 @@
-import React, { useState, useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-
 
 const UpdateNotice = () => {
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
-  const [contents, setContents] = useState("");
+  const [content, setContent] = useState("");
+  const [writer, setWriter] = useState("");
   const { noticeId } = useParams();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchNoticeData = async () => {
-      try {
-        // 서버에서 공지사항 데이터를 가져오는 GET 요청
-        const response = await axios.get(process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`);
-        const noticeData = response.data;
-
-        // 가져온 데이터를 상태에 설정
-        setTitle(noticeData.title || "");
-        setContents(noticeData.content || "");
-
-        // 초기 이미지 URL 배열을 객체로 변환하여 files 상태에 설정
-        const initialImages = noticeData.imgUrl.map((url, index) => ({
-          file: null, // 이미지 파일이 아니므로 null
-          preview: url,
-          id: index.toString(), // 각 이미지에 고유한 ID 부여
-        }));
-
-        setFiles(initialImages);
-        console.log("배열 이미지", initialImages);
-      } catch (error) {
-        console.error("데이터를 불러오는 중 에러 발생:", error);
-      }
-    };
-
-    // 페이지 로드 시 데이터 불러오기
-    fetchNoticeData();
-  }, []);
+  const { user } = useSelector((state) => state.user);
 
   const handleFileChange = (e) => {
     e.preventDefault();
@@ -59,33 +35,85 @@ const UpdateNotice = () => {
     ]);
   };
 
+  useEffect(() => {
+    const fetchNoticeData = async () => {
+      try {
+        // 서버에서 공지사항 데이터를 가져오는 GET 요청
+        const response = await axios.get(
+          process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`
+        );
+        const noticeData = response.data;
+
+        // 가져온 데이터를 상태에 설정
+        setTitle(noticeData.title || "");
+        setContent(noticeData.content || "");
+
+        // 초기 이미지 URL 배열을 그대로 files 상태에 설정
+        setFiles(noticeData.imgUrl || []);
+
+        console.log("배열 이미지", files);
+      } catch (error) {
+        console.error("데이터를 불러오는 중 에러 발생:", error);
+      }
+    };
+    // 페이지 로드 시 데이터 불러오기
+    fetchNoticeData();
+
+    if (user) {
+      // user가 정의되어 있을 때에만 초기값 업데이트
+      setWriter(user.id || "");
+      //   setAvatar(user.imgUrl || "");
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
+      const accessToken = localStorage.getItem("accessToken");
+
+      const noticeDto = {
+        writer,
+        title,
+        content,
+      };
+
+      console.log(writer, title, content);
+
       const formData = new FormData();
-      files.forEach((file) => {
+      const filesToUpload = files || [];
+      console.log(filesToUpload);
+      filesToUpload.forEach((file, index) => {
         formData.append("files", file.file);
       });
-      formData.append("title", title);
-      formData.append("contents", contents);
+
+      formData.append(
+        "noticeDto",
+        new Blob([JSON.stringify(noticeDto)], {
+          type: "application/json",
+        })
+      );
 
       // axios를 사용하여 서버로 데이터 업데이트를 위한 PATCH 요청
       const response = await axios.patch(
-        "http://localhost:3001/notices",
+        process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`,
         formData,
         {
+          withCredentials: true,
           headers: {
+            Authorization: accessToken,
             "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      console.log(response.data); // 성공 시 서버 응답을 출력
+      console.log(response);
+      toast.success(response.data.returnMessage);
+      navigate("/notice");
     } catch (error) {
       console.error("데이터를 업데이트하는 중 에러 발생:", error);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -146,9 +174,9 @@ const UpdateNotice = () => {
                     rows="10"
                     required
                     type="text"
-                    name="contents"
-                    value={contents}
-                    onChange={(e) => setContents(e.target.value)}
+                    name="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
                   ></textarea>
                 </div>
 

@@ -1,6 +1,8 @@
 import React, { useState,useEffect } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const CreateNotice = () => {
@@ -8,6 +10,7 @@ const CreateNotice = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [writer, setWriter] = useState("")
+  const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
 
@@ -59,7 +62,7 @@ const CreateNotice = () => {
       console.log(filesToUpload)
       filesToUpload.forEach((file, index) => {
         // 파일 필드의 이름을 설정 (filename 속성 추가)
-        formData.append(`noticeDto[${index}].files`, file.file, file.file.name);
+        formData.append(`files`, file.file, file.file.name);
     });
 
       // 나머지 데이터를 JSON 문자열로 변환하여 FormData에 추가
@@ -83,9 +86,13 @@ const CreateNotice = () => {
         }
       );
 
-      console.log(response.data); // 성공 시 서버 응답을 출력
+   // 성공 시 서버 응답을 출력
+      console.log(response)
+      toast.success(response.data.returnMessage);
+      navigate('/notice');
     } catch (error) {
-      console.error("데이터를 전송하는 중 에러 발생:", error);
+      console.log(error)
+      toast.error(error.response.data.message);
     }
   };
 

@@ -123,6 +123,9 @@ const NoticeDetailComponent = () => {
           process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`
         );
         setNotice(response.data);
+        
+        console.log(response.data)
+
       } catch (error) {
         console.error("데이터를 불러오는 중 에러 발생:", error);
       }
@@ -207,11 +210,11 @@ const NoticeDetailComponent = () => {
             </div>
             <div className="mb-5 mt-6 flex items-center space-x-2">
               <div className="blog-author-avatar h-[58px] w-[58px] rounded-full border-2 border-primary p-0.5">
-                {avatar && avatar.imgUrl ? (
+                {notice && notice.avatar ? (
                   <img
-                    src={avatar.imgUrl}
+                    src={notice.avatar}
                     alt="Avatar Preview"
-                    className="h-[58px] w-[58px] rounded-full object-cover"
+                    className="h-[52px] w-[55px] rounded-full object-cover"
                   />
                 ) : (
                   <img

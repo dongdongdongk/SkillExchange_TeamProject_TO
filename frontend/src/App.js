@@ -34,18 +34,27 @@ const App = () => {
           <Route path="active/:activeToken" element={<ActivationPage />} />
           <Route path="profile" element={<UserProfile />} />
           <Route path="findAccount" element={<FindAccountPage />} />
-          <Route path="notice-detail/:noticeId" element={<NoticeDetailPage />} /> 
+          <Route
+            path="notice-detail/:noticeId"
+            element={<NoticeDetailPage />}
+          />
           <Route path="notice-create" element={<CreateNoticePage />} />
-          <Route path="notice-update/:noticeId" element={<UpdateNoticePage />} />
+          <Route
+            path="notice-update/:noticeId"
+            element={<UpdateNoticePage />}
+          />
         </Routes>
+        
         <ToastContainer
           position="top-center"
-          autoClose={false}
+          autoClose={3000}
+          hideProgressBar={false}
           newestOnTop={false}
           closeOnClick
           rtl={false}
           pauseOnFocusLoss
           draggable
+          pauseOnHover
           theme="colored"
           transition={Bounce}
         />
