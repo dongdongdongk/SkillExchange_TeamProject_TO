@@ -1,8 +1,9 @@
 import React, { useMemo, useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Comment = ({ comment, onReplayClick }) => (
   <div className="comment flex space-x-4 border-b border-border py-8">
@@ -112,6 +113,7 @@ const NoticeDetailComponent = () => {
   const [comments, setComments] = useState([]);
   const [newCommentContent, setNewCommentContent] = useState("");
   const [newCommentParentId, setNewCommentParentId] = useState("");
+  const navigate = useNavigate();
   const avatar = null;
 
   const { user } = useSelector((state) => state.user);
@@ -143,10 +145,39 @@ const NoticeDetailComponent = () => {
       }
     };
 
+    
     // 페이지 로드 시 데이터 불러오기
     fetchNoticeData();
     fetchCommentData();
   }, [noticeId]);
+  
+  const handleDeleteNotice = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+
+      // 현재 로그인한 사용자의 ID와 글 작성자의 ID를 비교하여 같으면 삭제 진행
+      if (user && user.id === notice.writer) {
+        const response = await axios.delete(
+          process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`,
+          {
+            headers: {
+              Authorization: accessToken,
+            },
+          }
+        );
+
+        // 삭제 성공 시 메시지 출력 및 페이지 이동 등 추가 동작 가능
+        console.log(response.data);
+        toast.success(response.data.returnMessage);
+        navigate("/notice"); // 예시로 목록 페이지로 이동
+      } else {
+        toast.error("글을 삭제할 권한이 없습니다.");
+      }
+    } catch (error) {
+      console.error("글 삭제 중 에러 발생:", error);
+      toast.error(error.response.data.message);
+    }
+  };
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -202,11 +233,21 @@ const NoticeDetailComponent = () => {
           <div className="mt-10 max-w-[810px] lg:col-9">
             <div className="mb-4 flex items-center justify-between">
               <h1 className="h2">{notice.title}</h1>
-              <Link to={`/notice-update/${notice.id}`}>
-                <button className="btn btn-outline-primary btn-sm">
-                  글 수정
-                </button>
-              </Link>
+              {user && user.id === notice.writer && (
+                <div className="flex space-x-2">
+                  <Link to={`/notice-update/${notice.id}`}>
+                    <button className="btn btn-outline-primary btn-sm">
+                      글 수정
+                    </button>
+                  </Link>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={handleDeleteNotice}
+                  >
+                    글 삭제
+                  </button>
+                </div>
+              )}
             </div>
             <div className="mb-5 mt-6 flex items-center space-x-2">
               <div className="blog-author-avatar h-[58px] w-[58px] rounded-full border-2 border-primary p-0.5">

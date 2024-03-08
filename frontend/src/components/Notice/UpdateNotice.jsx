@@ -117,7 +117,7 @@ const UpdateNotice = () => {
 
       console.log(response);
       toast.success(response.data.returnMessage);
-      // navigate("/notice");
+      navigate("/notice");
     } catch (error) {
       console.error("데이터를 업데이트하는 중 에러 발생:", error);
       toast.error(error.response.data.message);
