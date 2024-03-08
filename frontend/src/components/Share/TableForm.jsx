@@ -4,7 +4,7 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { Box, Button, CircularProgress } from "@mui/material";
+import { Box, Button, CircularProgress, TextField  } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -15,6 +15,7 @@ const TableForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [keyword, setKeyword] = useState("");
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const TableForm = () => {
     //     console.error("Error fetching data:", error);
     //   });
     fetchData();
-  }, [currentPage]);
+  }, [currentPage, keyword]);
 
   const fetchData = async () => {
     try {
@@ -39,7 +40,7 @@ const TableForm = () => {
           params: {
             limit: itemsPerPage,
             skip: currentPage - 1,
-            keyword: "",
+            keyword: keyword, // 추가: 키워드 전달,
           },
         }
       );
@@ -177,6 +178,22 @@ const TableForm = () => {
 
     muiCircularProgressProps: {
       sx: { mt: 2 }, // 로딩 스피너 위치 조정
+    },
+    muiTableToolbarProps: {
+      children: (
+        <>
+          <TextField
+            label="검색어 입력"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            variant="standard"
+            sx={{ mr: 2 }}
+          />
+          <Button onClick={() => fetchData()} variant="contained">
+            검색
+          </Button>
+        </>
+      ),
     },
 
     positionToolbarAlertBanner: "bottom", //show selected rows count on bottom toolbar
