@@ -35,34 +35,39 @@ const UpdateNotice = () => {
     ]);
   };
 
+  const handleImageRemove = (id) => {
+    setFiles((prevImages) => prevImages.filter((image) => image.id !== id));
+  };
+
   useEffect(() => {
     const fetchNoticeData = async () => {
       try {
-        // 서버에서 공지사항 데이터를 가져오는 GET 요청
         const response = await axios.get(
           process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`
         );
         const noticeData = response.data;
 
-        // 가져온 데이터를 상태에 설정
         setTitle(noticeData.title || "");
         setContent(noticeData.content || "");
+        setWriter(noticeData.writer || ""); // writer 값 설정 추가
 
-        // 초기 이미지 URL 배열을 그대로 files 상태에 설정
-        setFiles(noticeData.imgUrl || []);
-
-        console.log("배열 이미지", files);
+        // 이미지 URL 배열을 files 상태에 설정
+        setFiles(
+          noticeData.imgUrl.map((url, index) => ({
+            file: null, // 이미지 파일을 가져오지 않기 때문에 null로 설정
+            preview: url,
+            id: index, // 각 이미지에 고유한 ID 설정
+          }))
+        );
       } catch (error) {
         console.error("데이터를 불러오는 중 에러 발생:", error);
       }
     };
-    // 페이지 로드 시 데이터 불러오기
-    fetchNoticeData();
+
+    fetchNoticeData(); // 페이지 로드 시 데이터 불러오기
 
     if (user) {
-      // user가 정의되어 있을 때에만 초기값 업데이트
       setWriter(user.id || "");
-      //   setAvatar(user.imgUrl || "");
     }
   }, [user]);
 
@@ -77,9 +82,11 @@ const UpdateNotice = () => {
         writer,
         title,
         content,
+        imgUrl: files.map(file => file.preview),
       };
 
       console.log(writer, title, content);
+      console.log(noticeDto)
 
       const formData = new FormData();
       const filesToUpload = files || [];
@@ -110,7 +117,7 @@ const UpdateNotice = () => {
 
       console.log(response);
       toast.success(response.data.returnMessage);
-      navigate("/notice");
+      // navigate("/notice");
     } catch (error) {
       console.error("데이터를 업데이트하는 중 에러 발생:", error);
       toast.error(error.response.data.message);
@@ -201,12 +208,20 @@ const UpdateNotice = () => {
                   </label>
                   {files &&
                     files.map((file) => (
-                      <img
-                        src={file.preview}
-                        key={file.id}
-                        alt=""
-                        className="m-2 h-[120px] w-[120px] object-cover"
-                      />
+                      <div key={file.id} className="m-2 relative">
+                        <img
+                          src={file.preview}
+                          alt=""
+                          className="h-[120px] w-[120px] object-cover"
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded"
+                          onClick={() => handleImageRemove(file.id)}
+                        >
+                          삭제
+                        </button>
+                      </div>
                     ))}
                 </div>
 
