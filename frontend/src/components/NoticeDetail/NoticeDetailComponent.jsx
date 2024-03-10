@@ -25,7 +25,6 @@ const Comment = ({ comment, onReplayClick }) => (
         {comment.userId}
       </h4>
       <p className="mt-2.5">
-        {/* 댓글 작성 시간 (regDate) 표시 */}
         {new Date(comment.regDate).toLocaleString()}
         <button
           className="ml-4 text-primary"
@@ -39,7 +38,7 @@ const Comment = ({ comment, onReplayClick }) => (
   </div>
 );
 
-const CommentSection = ({ comments, onReplayClick }) => (
+const CommentSection = ({ comments, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit }) => (
   <div className="comments">
     <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
       댓글
@@ -47,7 +46,22 @@ const CommentSection = ({ comments, onReplayClick }) => (
     {comments.map((comment) => (
       <div key={comment.id}>
         <Comment comment={comment} onReplayClick={onReplayClick} />
-        {renderReplies(comment.children, onReplayClick)}
+        {selectedCommentId === comment.id && showReplyInput && (
+          <div>
+            <textarea
+              cols="30"
+              rows="3"
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+              placeholder="답글을 입력하세요..."
+            />
+            <button onClick={handleCancelReply}>취소</button>
+            <button onClick={() => handleReplySubmit(comment.id)}>
+              답글 작성
+            </button>
+          </div>
+        )}
+        {renderReplies(comment.children, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit, onReplayClick)}
       </div>
     ))}
   </div>
@@ -56,12 +70,6 @@ const CommentSection = ({ comments, onReplayClick }) => (
 const ReplayComment = ({ comment, onReplayClick }) => (
   <div className="comment ml-3 flex space-x-4 border-b border-border py-8">
     <img src="../images/icons/replay-arrow.svg" alt="commentArrow" />
-    {/* <img
-      src={comment.imgUrl}
-      className="h-[70px] w-[70px] rounded-full"
-      alt=""
-    /> */}
-
     {comment && comment.imgUrl ? (
       <img
         src={comment.imgUrl}
@@ -75,7 +83,6 @@ const ReplayComment = ({ comment, onReplayClick }) => (
         className="h-[70px] w-[70px] rounded-full"
       />
     )}
-
     <div>
       <h4 className="font-primary text-lg font-medium capitalize">
         {comment.userId}
@@ -94,14 +101,29 @@ const ReplayComment = ({ comment, onReplayClick }) => (
   </div>
 );
 
-const renderReplies = (replies, onReplayClick) =>
+const renderReplies = (replies, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit) =>
   replies &&
   replies.length > 0 && (
     <div className="ml-3">
       {replies.map((reply) => (
         <div key={reply.id}>
           <ReplayComment comment={reply} onReplayClick={onReplayClick} />
-          {renderReplies(reply.children, onReplayClick)}
+          {selectedCommentId === reply.id && showReplyInput && (
+            <div>
+              <textarea
+                cols="30"
+                rows="3"
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="답글을 입력하세요..."
+              />
+              <button onClick={handleCancelReply}>취소</button>
+              <button onClick={() => handleReplySubmit(reply.id)}>
+                답글 작성
+              </button>
+            </div>
+          )}
+          {renderReplies(reply.children, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit)}
         </div>
       ))}
     </div>
@@ -113,6 +135,9 @@ const NoticeDetailComponent = () => {
   const [comments, setComments] = useState([]);
   const [newCommentContent, setNewCommentContent] = useState("");
   const [newCommentParentId, setNewCommentParentId] = useState("");
+  const [showReplyInput, setShowReplyInput] = useState(false);
+  const [replyContent, setReplyContent] = useState("");
+  const [selectedCommentId, setSelectedCommentId] = useState(null);
   const navigate = useNavigate();
   const avatar = null;
 
@@ -125,15 +150,13 @@ const NoticeDetailComponent = () => {
           process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`
         );
         setNotice(response.data);
-        
-        console.log(response.data)
 
+        console.log(response.data);
       } catch (error) {
         console.error("데이터를 불러오는 중 에러 발생:", error);
       }
     };
 
-    // useParams로 가져온 noticeId를 사용하여 댓글 데이터를 불러오기 위한 함수
     const fetchCommentData = async () => {
       try {
         const response = await axios.get(
@@ -145,17 +168,14 @@ const NoticeDetailComponent = () => {
       }
     };
 
-    
-    // 페이지 로드 시 데이터 불러오기
     fetchNoticeData();
     fetchCommentData();
   }, [noticeId]);
-  
+
   const handleDeleteNotice = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
 
-      // 현재 로그인한 사용자의 ID와 글 작성자의 ID를 비교하여 같으면 삭제 진행
       if (user && user.id === notice.writer) {
         const response = await axios.delete(
           process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`,
@@ -166,10 +186,9 @@ const NoticeDetailComponent = () => {
           }
         );
 
-        // 삭제 성공 시 메시지 출력 및 페이지 이동 등 추가 동작 가능
         console.log(response.data);
         toast.success(response.data.returnMessage);
-        navigate("/notice"); // 예시로 목록 페이지로 이동
+        navigate("/notice");
       } else {
         toast.error("글을 삭제할 권한이 없습니다.");
       }
@@ -183,15 +202,13 @@ const NoticeDetailComponent = () => {
     e.preventDefault();
 
     try {
-      // accessToken 가져오기
       const accessToken = localStorage.getItem("accessToken");
 
-      // 리퀘스트 값을 사용하여 새로운 댓글을 등록하는 POST 요청
       const response = await axios.post(
         process.env.REACT_APP_SERVER + `/v1/comment/register`,
         {
           noticeId: noticeId,
-          parentId: newCommentParentId, // parentId가 없는 경우 최상위 댓글이 됩니다.
+          parentId: newCommentParentId,
           writer: user.id,
           content: newCommentContent,
         },
@@ -199,28 +216,65 @@ const NoticeDetailComponent = () => {
           withCredentials: true,
           headers: {
             Authorization: accessToken,
+            'Content-Type': 'application/json',
           },
         }
       );
-      console.log(noticeId, newCommentParentId, user.id, newCommentContent);
 
-      // 새로운 댓글이 등록된 후 댓글 목록을 다시 불러옵니다.
       const updatedComments = await axios.get(
         process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
       );
       setComments(updatedComments.data);
 
-      // 댓글 내용 입력 필드를 초기화합니다.
       setNewCommentContent("");
+      setNewCommentParentId("");
     } catch (error) {
       console.error("댓글을 등록하는 중 에러 발생:", error);
     }
   };
 
-  const handleReplayClick = (parentId) => {
-    // Replay 버튼이 클릭된 경우 해당 댓글의 ID를 parentId로 설정
-    setNewCommentParentId(parentId);
-    console.log(parentId);
+  const handleReplayClick = (commentId) => {
+    setSelectedCommentId(commentId);
+    setShowReplyInput(true);
+  };
+
+  const handleCancelReply = () => {
+    setSelectedCommentId(null);
+    setShowReplyInput(false);
+    setReplyContent("");
+  };
+
+  const handleReplySubmit = async (parentId) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+
+      const response = await axios.post(
+        process.env.REACT_APP_SERVER + `/v1/comment/register`,
+        {
+          noticeId: noticeId,
+          parentId: parentId,
+          writer: user.id,
+          content: replyContent,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+          },
+        },
+      );
+
+      console.log("Notice ID:", noticeId);
+      const updatedComments = await axios.get(
+        process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
+      );
+      setComments(updatedComments.data);
+
+      setShowReplyInput(false);
+      setReplyContent("");
+    } catch (error) {
+      console.error("댓글을 등록하는 중 에러 발생:", error);
+    }
   };
 
   return (
@@ -278,9 +332,7 @@ const NoticeDetailComponent = () => {
             </div>
 
             <div className="flex w-full flex-wrap items-center">
-              <label htmlFor="upload">
-                
-              </label>
+              <label htmlFor="upload"></label>
               {notice.imgUrl &&
                 notice.imgUrl.map((image, index) => (
                   <img
@@ -295,6 +347,12 @@ const NoticeDetailComponent = () => {
             <CommentSection
               comments={comments}
               onReplayClick={handleReplayClick}
+              selectedCommentId={selectedCommentId}
+              showReplyInput={showReplyInput}
+              replyContent={replyContent}
+              setReplyContent={setReplyContent}
+              handleCancelReply={handleCancelReply}
+              handleReplySubmit={handleReplySubmit}
             />
 
             <form className="comment-form" onSubmit={handleCommentSubmit}>
