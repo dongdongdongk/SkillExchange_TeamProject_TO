@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const Comment = ({ comment, onReplayClick }) => (
+const Comment = ({ comment, onReplayClick, onDeleteComment }) => (
   <div className="comment flex space-x-4 border-b border-border py-8">
     {comment && comment.imgUrl ? (
       <img
@@ -32,20 +32,46 @@ const Comment = ({ comment, onReplayClick }) => (
         >
           Replay
         </button>
+        {onDeleteComment && (
+          <button
+            className="ml-4 text-red-500"
+            onClick={() => {
+              console.log("Delete button clicked");
+              onDeleteComment(comment.id);
+              console.log(comment.id)
+            }}
+          >
+            Delete
+          </button>
+        )}
       </p>
       <p className="mt-5">{comment.content}</p>
     </div>
   </div>
 );
 
-const CommentSection = ({ comments, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit }) => (
+const CommentSection = ({
+  comments,
+  onReplayClick,
+  selectedCommentId,
+  showReplyInput,
+  replyContent,
+  setReplyContent,
+  handleCancelReply,
+  handleReplySubmit,
+  onDeleteComment,
+}) => (
   <div className="comments">
     <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
       댓글
     </h3>
     {comments.map((comment) => (
       <div key={comment.id}>
-        <Comment comment={comment} onReplayClick={onReplayClick} />
+        <Comment
+          comment={comment}
+          onReplayClick={onReplayClick}
+          onDeleteComment={onDeleteComment}
+        />
         {selectedCommentId === comment.id && showReplyInput && (
           <div>
             <textarea
@@ -61,13 +87,23 @@ const CommentSection = ({ comments, onReplayClick, selectedCommentId, showReplyI
             </button>
           </div>
         )}
-        {renderReplies(comment.children, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit, onReplayClick)}
+        {renderReplies(
+          comment.children,
+          onReplayClick,
+          selectedCommentId,
+          showReplyInput,
+          replyContent,
+          setReplyContent,
+          handleCancelReply,
+          handleReplySubmit,
+          onReplayClick
+        )}
       </div>
     ))}
   </div>
 );
 
-const ReplayComment = ({ comment, onReplayClick }) => (
+const ReplayComment = ({ comment, onReplayClick, onDeleteComment }) => (
   <div className="comment ml-3 flex space-x-4 border-b border-border py-8">
     <img src="../images/icons/replay-arrow.svg" alt="commentArrow" />
     {comment && comment.imgUrl ? (
@@ -95,19 +131,46 @@ const ReplayComment = ({ comment, onReplayClick }) => (
         >
           Replay
         </button>
+        {onDeleteComment && (
+          <button
+            type="button" // Add type="button" to prevent form submission
+            className="ml-4 text-red-500"
+            onClick={() => {
+              console.log("Delete button clicked");
+              onDeleteComment(comment.id);
+              console.log(comment.id)
+            }}
+          >
+            Delete
+          </button>
+        )}
       </p>
       <p className="mt-5">{comment.content}</p>
     </div>
   </div>
 );
 
-const renderReplies = (replies, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit) =>
+const renderReplies = (
+  replies,
+  onReplayClick,
+  selectedCommentId,
+  showReplyInput,
+  replyContent,
+  setReplyContent,
+  handleCancelReply,
+  handleReplySubmit,
+  onDeleteComment
+) =>
   replies &&
   replies.length > 0 && (
     <div className="ml-3">
       {replies.map((reply) => (
         <div key={reply.id}>
-          <ReplayComment comment={reply} onReplayClick={onReplayClick} />
+          <ReplayComment
+            comment={reply}
+            onReplayClick={onReplayClick}
+            onDeleteComment={onDeleteComment}
+          />
           {selectedCommentId === reply.id && showReplyInput && (
             <div>
               <textarea
@@ -123,7 +186,17 @@ const renderReplies = (replies, onReplayClick, selectedCommentId, showReplyInput
               </button>
             </div>
           )}
-          {renderReplies(reply.children, onReplayClick, selectedCommentId, showReplyInput, replyContent, setReplyContent, handleCancelReply, handleReplySubmit)}
+          {renderReplies(
+            reply.children,
+            onReplayClick,
+            selectedCommentId,
+            showReplyInput,
+            replyContent,
+            setReplyContent,
+            handleCancelReply,
+            handleReplySubmit,
+            onDeleteComment
+          )}
         </div>
       ))}
     </div>
@@ -163,6 +236,7 @@ const NoticeDetailComponent = () => {
           process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
         );
         setComments(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error("댓글을 불러오는 중 에러 발생:", error);
       }
@@ -216,7 +290,7 @@ const NoticeDetailComponent = () => {
           withCredentials: true,
           headers: {
             Authorization: accessToken,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
@@ -236,6 +310,7 @@ const NoticeDetailComponent = () => {
   const handleReplayClick = (commentId) => {
     setSelectedCommentId(commentId);
     setShowReplyInput(true);
+    setReplyContent("");
   };
 
   const handleCancelReply = () => {
@@ -261,7 +336,7 @@ const NoticeDetailComponent = () => {
           headers: {
             Authorization: accessToken,
           },
-        },
+        }
       );
 
       console.log("Notice ID:", noticeId);
@@ -274,6 +349,32 @@ const NoticeDetailComponent = () => {
       setReplyContent("");
     } catch (error) {
       console.error("댓글을 등록하는 중 에러 발생:", error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+
+      const response = await axios.delete(
+        process.env.REACT_APP_SERVER + `/v1/comment/${commentId}`,
+        {
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+
+      toast.success(response.data.returnMessage);
+
+      // Refresh comments after deletion
+      const updatedComments = await axios.get(
+        process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
+      );
+      setComments(updatedComments.data);
+    } catch (error) {
+      console.error("댓글 삭제 중 에러 발생:", error);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -353,6 +454,7 @@ const NoticeDetailComponent = () => {
               setReplyContent={setReplyContent}
               handleCancelReply={handleCancelReply}
               handleReplySubmit={handleReplySubmit}
+              onDeleteComment={handleDeleteComment}
             />
 
             <form className="comment-form" onSubmit={handleCommentSubmit}>
