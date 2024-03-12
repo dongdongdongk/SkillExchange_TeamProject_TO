@@ -5,54 +5,72 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const Comment = ({ comment, onReplayClick, onDeleteComment }) => (
-  <div className="comment flex space-x-4 border-b border-border py-8">
-    {comment && comment.imgUrl ? (
-      <img
-        src={comment.imgUrl}
-        alt="Avatar Preview"
-        className="h-[70px] w-[70px] rounded-full"
-      />
-    ) : (
-      <img
-        src="/images/users/user.png"
-        alt="Avatar Preview"
-        className="h-[70px] w-[70px] rounded-full"
-      />
-    )}
-    <div>
-      <h4 className="font-primary text-lg font-medium capitalize">
-        {comment.userId}
-      </h4>
-      <p className="mt-2.5">
-        {new Date(comment.regDate).toLocaleString()}
-        <button
-          className="ml-4 text-primary"
-          onClick={() => onReplayClick(comment.id)}
-        >
-          Replay
-        </button>
-        {onDeleteComment && (
+const Comment = ({ comment, onReplyClick, onDeleteComment, currentUserId }) => {
+  const isCurrentUserComment = currentUserId === comment.userId;
+
+  return (
+    <div className="comment flex space-x-4 border-b border-border py-8">
+      <Avatar imgUrl={comment.imgUrl} />
+      <div>
+        <h4 className="font-primary text-lg font-medium capitalize">
+          {comment.userId}
+        </h4>
+        <p className="mt-2.5">
+          {new Date(comment.regDate).toLocaleString()}
           <button
-            className="ml-4 text-red-500"
-            onClick={() => {
-              console.log("Delete button clicked");
-              onDeleteComment(comment.id);
-              console.log(comment.id)
-            }}
+            className="ml-4 text-primary"
+            onClick={() => onReplyClick(comment.id)}
           >
-            Delete
+            Replay
           </button>
-        )}
-      </p>
-      <p className="mt-5">{comment.content}</p>
+          {isCurrentUserComment && (
+            <button
+              className="ml-4 text-red-500"
+              onClick={() => onDeleteComment(comment.id)}
+            >
+              Delete
+            </button>
+          )}
+        </p>
+        <p className="mt-5">{comment.content}</p>
+      </div>
     </div>
-  </div>
+  );
+};
+
+const Avatar = ({ imgUrl }) => (
+  <img
+    src={imgUrl || "/images/users/user.png"}
+    alt="Avatar Preview"
+    className="h-[52px] w-[55px] rounded-full"
+  />
 );
 
-const CommentSection = ({
+const ReplyForm = ({
+  replyContent,
+  setReplyContent,
+  handleCancelReply,
+  handleReplySubmit,
+  parentId,
+}) => (
+  <>
+  <div>
+    <textarea
+      cols="30"
+      rows="3"
+      value={replyContent}
+      onChange={(e) => setReplyContent(e.target.value)}
+      placeholder="답글을 입력하세요..."
+    />
+  </div>
+    <button className="ml-2 mr-2" onClick={() => handleReplySubmit(parentId)}>작성</button>
+    <button onClick={handleCancelReply}>취소</button>
+    </>
+);
+
+const CommentList = ({
   comments,
-  onReplayClick,
+  onReplyClick,
   selectedCommentId,
   showReplyInput,
   replyContent,
@@ -60,147 +78,51 @@ const CommentSection = ({
   handleCancelReply,
   handleReplySubmit,
   onDeleteComment,
+  currentUserId,
+  level = 0, // Added level parameter to track the nesting level
 }) => (
-  <div className="comments">
-    <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
-      댓글
-    </h3>
+  <div className={`comments`} style={{ marginLeft: `${level * 15}px` }}>
     {comments.map((comment) => (
-      <div key={comment.id}>
-        <Comment
-          comment={comment}
-          onReplayClick={onReplayClick}
-          onDeleteComment={onDeleteComment}
-        />
+      <div key={comment.id} className={`comment-level-${level}`}>
+        <div className="comment-container flex items-center">
+          <img src="../images/icons/replay-arrow.svg" alt="commentArrow" className="comment-arrow mr-3" />
+          <Comment
+            comment={comment}
+            onReplyClick={onReplyClick}
+            onDeleteComment={onDeleteComment}
+            currentUserId={currentUserId}
+          />
+        </div>
+        <div className="ml-12 mt-2">
         {selectedCommentId === comment.id && showReplyInput && (
-          <div>
-            <textarea
-              cols="30"
-              rows="3"
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="답글을 입력하세요..."
-            />
-            <button onClick={handleCancelReply}>취소</button>
-            <button onClick={() => handleReplySubmit(comment.id)}>
-              답글 작성
-            </button>
-          </div>
+          <ReplyForm
+            replyContent={replyContent}
+            setReplyContent={setReplyContent}
+            handleCancelReply={handleCancelReply}
+            handleReplySubmit={handleReplySubmit}
+            parentId={comment.id}
+          />
         )}
-        {renderReplies(
-          comment.children,
-          onReplayClick,
-          selectedCommentId,
-          showReplyInput,
-          replyContent,
-          setReplyContent,
-          handleCancelReply,
-          handleReplySubmit,
-          onReplayClick
+        </div>
+        {comment.children && (
+          <CommentList
+            comments={comment.children}
+            onReplyClick={onReplyClick}
+            selectedCommentId={selectedCommentId}
+            showReplyInput={showReplyInput}
+            replyContent={replyContent}
+            setReplyContent={setReplyContent}
+            handleCancelReply={handleCancelReply}
+            handleReplySubmit={handleReplySubmit}
+            onDeleteComment={onDeleteComment}
+            currentUserId={currentUserId}
+            level={level + 1} // Incrementing the level for nested comments
+          />
         )}
       </div>
     ))}
   </div>
 );
-
-const ReplayComment = ({ comment, onReplayClick, onDeleteComment }) => (
-  <div className="comment ml-3 flex space-x-4 border-b border-border py-8">
-    <img src="../images/icons/replay-arrow.svg" alt="commentArrow" />
-    {comment && comment.imgUrl ? (
-      <img
-        src={comment.imgUrl}
-        alt="Avatar Preview"
-        className="h-[70px] w-[70px] rounded-full"
-      />
-    ) : (
-      <img
-        src="/images/users/user.png"
-        alt="Avatar Preview"
-        className="h-[70px] w-[70px] rounded-full"
-      />
-    )}
-    <div>
-      <h4 className="font-primary text-lg font-medium capitalize">
-        {comment.userId}
-      </h4>
-      <p className="mt-2.5">
-        {new Date(comment.regDate).toLocaleString()}
-        <button
-          className="ml-4 text-primary"
-          onClick={() => onReplayClick(comment.id)}
-        >
-          Replay
-        </button>
-        {onDeleteComment && (
-          <button
-            type="button" // Add type="button" to prevent form submission
-            className="ml-4 text-red-500"
-            onClick={() => {
-              console.log("Delete button clicked");
-              onDeleteComment(comment.id);
-              console.log(comment.id)
-            }}
-          >
-            Delete
-          </button>
-        )}
-      </p>
-      <p className="mt-5">{comment.content}</p>
-    </div>
-  </div>
-);
-
-const renderReplies = (
-  replies,
-  onReplayClick,
-  selectedCommentId,
-  showReplyInput,
-  replyContent,
-  setReplyContent,
-  handleCancelReply,
-  handleReplySubmit,
-  onDeleteComment
-) =>
-  replies &&
-  replies.length > 0 && (
-    <div className="ml-3">
-      {replies.map((reply) => (
-        <div key={reply.id}>
-          <ReplayComment
-            comment={reply}
-            onReplayClick={onReplayClick}
-            onDeleteComment={onDeleteComment}
-          />
-          {selectedCommentId === reply.id && showReplyInput && (
-            <div>
-              <textarea
-                cols="30"
-                rows="3"
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="답글을 입력하세요..."
-              />
-              <button onClick={handleCancelReply}>취소</button>
-              <button onClick={() => handleReplySubmit(reply.id)}>
-                답글 작성
-              </button>
-            </div>
-          )}
-          {renderReplies(
-            reply.children,
-            onReplayClick,
-            selectedCommentId,
-            showReplyInput,
-            replyContent,
-            setReplyContent,
-            handleCancelReply,
-            handleReplySubmit,
-            onDeleteComment
-          )}
-        </div>
-      ))}
-    </div>
-  );
 
 const NoticeDetailComponent = () => {
   const { noticeId } = useParams();
@@ -212,38 +134,24 @@ const NoticeDetailComponent = () => {
   const [replyContent, setReplyContent] = useState("");
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const navigate = useNavigate();
-  const avatar = null;
-
   const { user } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const fetchNoticeData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`
-        );
-        setNotice(response.data);
+        const [noticeResponse, commentsResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_SERVER}/v1/notices/${noticeId}`),
+          axios.get(`${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`),
+        ]);
 
-        console.log(response.data);
+        setNotice(noticeResponse.data);
+        setComments(commentsResponse.data);
       } catch (error) {
         console.error("데이터를 불러오는 중 에러 발생:", error);
       }
     };
 
-    const fetchCommentData = async () => {
-      try {
-        const response = await axios.get(
-          process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
-        );
-        setComments(response.data);
-        console.log(response.data)
-      } catch (error) {
-        console.error("댓글을 불러오는 중 에러 발생:", error);
-      }
-    };
-
-    fetchNoticeData();
-    fetchCommentData();
+    fetchData();
   }, [noticeId]);
 
   const handleDeleteNotice = async () => {
@@ -252,7 +160,7 @@ const NoticeDetailComponent = () => {
 
       if (user && user.id === notice.writer) {
         const response = await axios.delete(
-          process.env.REACT_APP_SERVER + `/v1/notices/${noticeId}`,
+          `${process.env.REACT_APP_SERVER}/v1/notices/${noticeId}`,
           {
             headers: {
               Authorization: accessToken,
@@ -279,9 +187,9 @@ const NoticeDetailComponent = () => {
       const accessToken = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        process.env.REACT_APP_SERVER + `/v1/comment/register`,
+        `${process.env.REACT_APP_SERVER}/v1/comment/register`,
         {
-          noticeId: noticeId,
+          noticeId,
           parentId: newCommentParentId,
           writer: user.id,
           content: newCommentContent,
@@ -296,7 +204,7 @@ const NoticeDetailComponent = () => {
       );
 
       const updatedComments = await axios.get(
-        process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
+        `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
       );
       setComments(updatedComments.data);
 
@@ -307,7 +215,7 @@ const NoticeDetailComponent = () => {
     }
   };
 
-  const handleReplayClick = (commentId) => {
+  const handleReplyClick = (commentId) => {
     setSelectedCommentId(commentId);
     setShowReplyInput(true);
     setReplyContent("");
@@ -324,10 +232,10 @@ const NoticeDetailComponent = () => {
       const accessToken = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        process.env.REACT_APP_SERVER + `/v1/comment/register`,
+        `${process.env.REACT_APP_SERVER}/v1/comment/register`,
         {
-          noticeId: noticeId,
-          parentId: parentId,
+          noticeId,
+          parentId,
           writer: user.id,
           content: replyContent,
         },
@@ -339,9 +247,8 @@ const NoticeDetailComponent = () => {
         }
       );
 
-      console.log("Notice ID:", noticeId);
       const updatedComments = await axios.get(
-        process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
+        `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
       );
       setComments(updatedComments.data);
 
@@ -357,7 +264,7 @@ const NoticeDetailComponent = () => {
       const accessToken = localStorage.getItem("accessToken");
 
       const response = await axios.delete(
-        process.env.REACT_APP_SERVER + `/v1/comment/${commentId}`,
+        `${process.env.REACT_APP_SERVER}/v1/comment/${commentId}`,
         {
           headers: {
             Authorization: accessToken,
@@ -367,9 +274,8 @@ const NoticeDetailComponent = () => {
 
       toast.success(response.data.returnMessage);
 
-      // Refresh comments after deletion
       const updatedComments = await axios.get(
-        process.env.REACT_APP_SERVER + `/v1/comment/${noticeId}`
+        `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
       );
       setComments(updatedComments.data);
     } catch (error) {
@@ -444,10 +350,13 @@ const NoticeDetailComponent = () => {
                   />
                 ))}
             </div>
+            <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
+              댓글
+            </h3>
 
-            <CommentSection
+            <CommentList
               comments={comments}
-              onReplayClick={handleReplayClick}
+              onReplyClick={handleReplyClick}
               selectedCommentId={selectedCommentId}
               showReplyInput={showReplyInput}
               replyContent={replyContent}
@@ -455,6 +364,7 @@ const NoticeDetailComponent = () => {
               handleCancelReply={handleCancelReply}
               handleReplySubmit={handleReplySubmit}
               onDeleteComment={handleDeleteComment}
+              currentUserId={user?.id}
             />
 
             <form className="comment-form" onSubmit={handleCommentSubmit}>
