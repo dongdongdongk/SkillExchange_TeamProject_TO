@@ -22,10 +22,10 @@ const IntegrationSingleSection = () => (
                 글 등록하기
               </Link>
             </div>
-            <div className="my-12 border-y border-border py-3">
-              <h4 className="h5 ml-2 mt-2 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
+            <div className="my-4 border-y border-border py-3">
+              {/* <h4 className="h5 ml-2 mt-2 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
                 공지사항
-              </h4>
+              </h4> */}
               <TableForm />
             </div>
           </div>

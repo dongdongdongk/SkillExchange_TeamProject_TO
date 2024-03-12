@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {integrationData} from '../../dummyData';
 const IntegrationBox = ({ imageSrc, title, category, description }) => {
   return (
-    <div className="integration-tab-item mb-8 md:col-6 lg:col-4" data-groups={`["${category}"]`}>
+    <div className="integration-tab-item mb-8 md:col-6 lg:col-3" data-groups={`["${category}"]`}>
       <div className="rounded-xl bg-white px-10 pb-8 pt-11 shadow-lg max-h-[350px] min-h-[350px]">
         <div className="integration-card-head flex items-center space-x-4">
           <img src={imageSrc} alt="" />

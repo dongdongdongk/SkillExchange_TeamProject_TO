@@ -17,12 +17,14 @@ const Comment = ({ comment, onReplyClick, onDeleteComment, currentUserId }) => {
         </h4>
         <p className="mt-2.5">
           {new Date(comment.regDate).toLocaleString()}
-          <button
-            className="ml-4 text-primary"
-            onClick={() => onReplyClick(comment.id)}
-          >
-            Replay
-          </button>
+          {comment.userId && (  // Check if comment.userId is not null or undefined
+            <button
+              className="ml-4 text-primary"
+              onClick={() => onReplyClick(comment.id)}
+            >
+              Replay
+            </button>
+          )}
           {isCurrentUserComment && (
             <button
               className="ml-4 text-red-500"
@@ -54,18 +56,20 @@ const ReplyForm = ({
   parentId,
 }) => (
   <>
-  <div>
-    <textarea
-      cols="30"
-      rows="3"
-      value={replyContent}
-      onChange={(e) => setReplyContent(e.target.value)}
-      placeholder="답글을 입력하세요..."
-    />
-  </div>
-    <button className="ml-2 mr-2" onClick={() => handleReplySubmit(parentId)}>작성</button>
+    <div>
+      <textarea
+        cols="30"
+        rows="3"
+        value={replyContent}
+        onChange={(e) => setReplyContent(e.target.value)}
+        placeholder="답글을 입력하세요..."
+      />
+    </div>
+    <button className="ml-2 mr-2" onClick={() => handleReplySubmit(parentId)}>
+      작성
+    </button>
     <button onClick={handleCancelReply}>취소</button>
-    </>
+  </>
 );
 
 const CommentList = ({
@@ -85,7 +89,11 @@ const CommentList = ({
     {comments.map((comment) => (
       <div key={comment.id} className={`comment-level-${level}`}>
         <div className="comment-container flex items-center">
-          <img src="../images/icons/replay-arrow.svg" alt="commentArrow" className="comment-arrow mr-3" />
+          <img
+            src="../images/icons/replay-arrow.svg"
+            alt="commentArrow"
+            className="comment-arrow mr-3"
+          />
           <Comment
             comment={comment}
             onReplyClick={onReplyClick}
@@ -94,15 +102,15 @@ const CommentList = ({
           />
         </div>
         <div className="ml-12 mt-2">
-        {selectedCommentId === comment.id && showReplyInput && (
-          <ReplyForm
-            replyContent={replyContent}
-            setReplyContent={setReplyContent}
-            handleCancelReply={handleCancelReply}
-            handleReplySubmit={handleReplySubmit}
-            parentId={comment.id}
-          />
-        )}
+          {selectedCommentId === comment.id && showReplyInput && (
+            <ReplyForm
+              replyContent={replyContent}
+              setReplyContent={setReplyContent}
+              handleCancelReply={handleCancelReply}
+              handleReplySubmit={handleReplySubmit}
+              parentId={comment.id}
+            />
+          )}
         </div>
         {comment.children && (
           <CommentList

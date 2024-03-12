@@ -139,6 +139,11 @@ const TableForm = () => {
     enableDensityToggle: false,
     enableRowSelection: false,
     onColumnVisibilityChange: false,
+    enableGlobalFilter : false,
+    enableFullScreenToggle: false,
+    enablePagination : false,
+    enableStickyFooter : false,
+    enableStickyHeader : false,
     muiTableBodyCellProps: {
       sx: {
         paddingY: "70px",
@@ -176,26 +181,6 @@ const TableForm = () => {
       showProgressBars: isRefetching, // progress bars while refetching
     },
 
-    muiCircularProgressProps: {
-      sx: { mt: 2 }, // 로딩 스피너 위치 조정
-    },
-    muiTableToolbarProps: {
-      children: (
-        <>
-          <TextField
-            label="검색어 입력"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            variant="standard"
-            sx={{ mr: 2 }}
-          />
-          <Button onClick={() => fetchData()} variant="contained">
-            검색
-          </Button>
-        </>
-      ),
-    },
-
     positionToolbarAlertBanner: "bottom", //show selected rows count on bottom toolbar
     //add custom action buttons to top-left of top toolbar
     // renderTopToolbarCustomActions: ({ table }) => (
@@ -215,12 +200,33 @@ const TableForm = () => {
 
   return (
     <div>
-      <MaterialReactTable table={table} />
-      {isLoading && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-          <CircularProgress />
-        </Box>
-      )}
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2 }}>
+      <TextField
+        label="검색어 입력"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        variant="outlined"
+        size="small"
+        sx={{ mr: 2 }}
+      />
+      <Button
+        onClick={() => {
+          setCurrentPage(1);
+          fetchData();
+        }}
+        variant="contained"
+        className="btn-primary"
+      >
+        검색
+      </Button>
+    </Box>
+    <MaterialReactTable table={table} />
+    {isLoading && (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <CircularProgress />
+      </Box>
+    )}
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2 }}>
       <div>
         <Button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -230,15 +236,14 @@ const TableForm = () => {
         </Button>
         <span>현재 페이지: {currentPage}</span>
         <Button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages || totalPages === 1}
         >
           다음 페이지
         </Button>
       </div>
-    </div>
+    </Box>
+  </div>
   );
 };
 export default TableForm;
