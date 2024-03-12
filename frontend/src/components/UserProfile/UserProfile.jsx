@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import PasswordModal from "./PasswordModal";
 
 const UserProfile = () => {
   const [job, setJob] = useState("");
@@ -10,6 +11,7 @@ const UserProfile = () => {
   const [gender, setGender] = useState("");
   const [careerSkills, setCareerSkills] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const fileInputRef = useRef(null);
 
   const { user } = useSelector((state) => state.user);
@@ -103,7 +105,7 @@ const UserProfile = () => {
       );
 
       toast.success(response.data.returnMessage);
-      window.location.reload()
+      window.location.reload();
     } catch (err) {
       toast.error(err.response.data.message);
     }
@@ -113,6 +115,14 @@ const UserProfile = () => {
   const handlerFileInputChange = (e) => {
     const file = e.target.files[0];
     setAvatar(file);
+  };
+
+  const handlePasswordButtonClick = () => {
+    setShowPasswordModal(true);
+  };
+
+  const handlePasswordModalClose = () => {
+    setShowPasswordModal(false);
   };
 
   return (
@@ -167,7 +177,10 @@ const UserProfile = () => {
             </div>
 
             <div className="mt-32 flex justify-between space-x-8 md:mt-0 md:justify-center">
-              <button className="btn btn-primary transform rounded px-4 py-2  font-medium uppercase shadow transition hover:-translate-y-0.5 hover:shadow-lg">
+              <button
+                className="btn btn-primary transform rounded px-4 py-2 font-medium uppercase shadow transition hover:-translate-y-0.5 hover:shadow-lg"
+                onClick={handlePasswordButtonClick}
+              >
                 비밀번호 수정
               </button>
               <button
@@ -178,6 +191,10 @@ const UserProfile = () => {
               </button>
             </div>
           </div>
+          <PasswordModal
+            isOpen={showPasswordModal}
+            onClose={handlePasswordModalClose}
+          />
 
           <div className="mt-12 border-b pb-12 text-center">
             <div className="col-6 justify-center">
