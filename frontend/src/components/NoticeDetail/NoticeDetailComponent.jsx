@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 const Comment = ({ comment, onReplyClick, onDeleteComment, currentUserId }) => {
   const isCurrentUserComment = currentUserId === comment.userId;
-
+  const { user } = useSelector((state) => state.user);
   return (
     <div className="comment flex space-x-4 border-b border-border py-8">
       <Avatar imgUrl={comment.imgUrl} />
@@ -17,21 +17,23 @@ const Comment = ({ comment, onReplyClick, onDeleteComment, currentUserId }) => {
         </h4>
         <p className="mt-2.5">
           {new Date(comment.regDate).toLocaleString()}
-          {comment.userId && (  // Check if comment.userId is not null or undefined
-            <button
-              className="ml-4 text-primary"
-              onClick={() => onReplyClick(comment.id)}
-            >
-              Replay
-            </button>
-          )}
-          {isCurrentUserComment && (
-            <button
-              className="ml-4 text-red-500"
-              onClick={() => onDeleteComment(comment.id)}
-            >
-              Delete
-            </button>
+          {user && ( // Check if user is logged in
+            <React.Fragment>
+              <button
+                className="ml-4 text-primary"
+                onClick={() => onReplyClick(comment.id)}
+              >
+                Reply
+              </button>
+              {isCurrentUserComment && (
+                <button
+                  className="ml-4 text-red-500"
+                  onClick={() => onDeleteComment(comment.id)}
+                >
+                  Delete
+                </button>
+              )}
+            </React.Fragment>
           )}
         </p>
         <p className="mt-5">{comment.content}</p>
@@ -190,16 +192,21 @@ const NoticeDetailComponent = () => {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const accessToken = localStorage.getItem("accessToken");
-
+      const userId = localStorage.getItem("userId");
+  
+      if (!userId) {
+        throw new Error("사용자가 로그인되어 있지 않습니다. 댓글을 등록하려면 먼저 로그인하세요.");
+      }
+  
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER}/v1/comment/register`,
         {
           noticeId,
           parentId: newCommentParentId,
-          writer: user.id,
+          writer: userId,
           content: newCommentContent,
         },
         {
@@ -210,16 +217,16 @@ const NoticeDetailComponent = () => {
           },
         }
       );
-
+  
       const updatedComments = await axios.get(
         `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
       );
       setComments(updatedComments.data);
-
+  
       setNewCommentContent("");
       setNewCommentParentId("");
     } catch (error) {
-      console.error("댓글을 등록하는 중 에러 발생:", error);
+      toast.error("사용자가 로그인되어 있지 않습니다. 댓글을 등록하려면 먼저 로그인하세요.");
     }
   };
 

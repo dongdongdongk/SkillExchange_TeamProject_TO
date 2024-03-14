@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {integrationData} from '../../dummyData';
+
 const IntegrationBox = ({ imageSrc, title, category, description }) => {
   return (
     <div className="integration-tab-item mb-8 md:col-6 lg:col-3" data-groups={`["${category}"]`}>
@@ -37,31 +37,69 @@ const IntegrationBox = ({ imageSrc, title, category, description }) => {
 };
 
 const Integrations = () => {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const response = await axios.get(process.env.REACT_APP_SERVER +"/v1/talent/list?limit=20&skip=0");
+        setPosts(response.data.content);
+      } catch (error) {
+        console.error("포스트를 불러오는 동안 오류가 발생했습니다:", error);
+      }
+    }
+
+    fetchPosts();
+  }, []);
 
   return (
-    <section className="section pt-0">
-      <div className="container">
-        <div className="row justify-center">
-          <div className="lg:col-10">
-            <ul className="integration-tab filter-list justify-center">
-              {/* 필터 버튼들 */}
-            </ul>
+    <>
+      <div className="">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16  border-gray-200  lg:mx-0 lg:max-w-none lg:grid-cols-3">
+            {posts.map((post) => (
+              <article key={post.id} className="flex max-w-xl flex-col items-start justify-between shadow-lg rounded-md">
+               <div className="p-5 bg-slate-100">
+                <div className="flex items-center gap-x-4 text-xs">
+                  <time dateTime={post.regDate} className="text-gray-500">
+                    {new Date(post.regDate).toLocaleString()}
+                  </time>
+                  <a
+                    href="#"
+                    className="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100 btn-primary"
+                  >
+                    {post.teachingSubject}
+                  </a>
+                </div>
+                <div className="group relative">
+                  <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
+                    <a href="#">
+                      <span className="absolute inset-0" />
+                      {/* {post.title} */}
+                      피아노 선생님 구합니다
+                    </a>
+                  </h3>
+                  <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">{post.content}</p>
+                </div>
+                <div className="relative mt-8 flex items-center gap-x-4">
+                  <img src={post.writerAvatar} alt="" className="h-10 w-10 rounded-full bg-gray-50" />
+                  <div className="text-sm leading-6">
+                    <p className="font-semibold text-gray-900">
+                      <a href="#">
+                        <span className="absolute inset-0" />
+                        {post.writer}
+                      </a>
+                    </p>
+                    <p className="text-gray-600">{post.placeName} {post.ageGroup}</p>
+                  </div>
+                </div>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
-        <div className="integration-tab-items row mt-10">
-          {/* 데이터를 IntegrationBox 컴포넌트로 매핑 */}
-          {integrationData.map((item) => (
-            <IntegrationBox
-              key={item.id}
-              imageSrc={item.imageSrc}
-              title={item.title}
-              category={item.category}
-              description={item.description}
-            />
-          ))}
-        </div>
       </div>
-    </section>
+    </>
   );
 };
 

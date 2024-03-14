@@ -22,7 +22,7 @@ const PasswordModal = ({ isOpen, onClose }) => {
           newPasswordCheck: confirmPassword,
         };
     
-        const response = await axios.put(
+        const response = await axios.post(
           `${process.env.REACT_APP_SERVER}/v1/user/updatePw`,
           requestData,
           {
@@ -38,7 +38,14 @@ const PasswordModal = ({ isOpen, onClose }) => {
         // 모달 창 닫기
         onClose();
       } catch (err) {
-        toast.error('비밀번호 변경 중 오류 발생:', err.response.data.message);
+
+        if(err.response.data.message === "계정에 다시 로그인 해야 합니다.") {
+          toast.error(err.response.data.message);
+        } else {
+          toast.error(err.response.data.details[0]);
+
+        }
+
         // alert('비밀번호 변경에 실패했습니다. 다시 시도해주세요.');
 
       }
