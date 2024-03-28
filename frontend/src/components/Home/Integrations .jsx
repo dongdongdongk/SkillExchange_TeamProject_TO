@@ -3,8 +3,11 @@ import axios from "axios";
 
 const IntegrationBox = ({ imageSrc, title, category, description }) => {
   return (
-    <div className="integration-tab-item mb-8 md:col-6 lg:col-3" data-groups={`["${category}"]`}>
-      <div className="rounded-xl bg-white px-10 pb-8 pt-11 shadow-lg max-h-[350px] min-h-[350px]">
+    <div
+      className="integration-tab-item mb-8 md:col-6 lg:col-3"
+      data-groups={`["${category}"]`}
+    >
+      <div className="max-h-[350px] min-h-[350px] rounded-xl bg-white px-10 pb-8 pt-11 shadow-lg">
         <div className="integration-card-head flex items-center space-x-4">
           <img src={imageSrc} alt="" />
           <div>
@@ -15,8 +18,11 @@ const IntegrationBox = ({ imageSrc, title, category, description }) => {
         <div className="my-5 border-y border-border py-5">
           <p>{description}</p>
         </div>
-        <a className="inline-flex items-center font-semibold text-dark" href="#">
-          글 상세보기 
+        <a
+          className="inline-flex items-center font-semibold text-dark"
+          href="#"
+        >
+          글 상세보기
           <svg
             className="ml-1.5"
             width="13"
@@ -42,7 +48,9 @@ const Integrations = () => {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await axios.get(process.env.REACT_APP_SERVER +"/v1/talent/list?limit=20&skip=0");
+        const response = await axios.get(
+          process.env.REACT_APP_SERVER + "/v1/talent/list?limit=20&skip=0"
+        );
         setPosts(response.data.content);
       } catch (error) {
         console.error("포스트를 불러오는 동안 오류가 발생했습니다:", error);
@@ -57,45 +65,89 @@ const Integrations = () => {
       <div className="">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16  border-gray-200  lg:mx-0 lg:max-w-none lg:grid-cols-3">
-            {posts.map((post) => (
-              <article key={post.id} className="flex max-w-xl flex-col items-start justify-between shadow-lg rounded-md">
-               <div className="p-5 bg-slate-100">
-                <div className="flex items-center gap-x-4 text-xs">
-                  <time dateTime={post.regDate} className="text-gray-500">
-                    {new Date(post.regDate).toLocaleString()}
-                  </time>
-                  <a
-                    href="#"
-                    className="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100 btn-primary"
-                  >
-                    {post.teachingSubject}
-                  </a>
-                </div>
-                <div className="group relative">
-                  <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
-                    <a href="#">
-                      <span className="absolute inset-0" />
-                      {/* {post.title} */}
-                      피아노 선생님 구합니다
-                    </a>
-                  </h3>
-                  <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">{post.content}</p>
-                </div>
-                <div className="relative mt-8 flex items-center gap-x-4">
-                  <img src={post.writerAvatar} alt="" className="h-10 w-10 rounded-full bg-gray-50" />
-                  <div className="text-sm leading-6">
-                    <p className="font-semibold text-gray-900">
-                      <a href="#">
-                        <span className="absolute inset-0" />
-                        {post.writer}
+            {posts.map((post) => {
+              // 현재 날짜와 regDate의 차이 계산
+              const diffInMs = new Date() - new Date(post.regDate);
+              const diffInHours = Math.round(diffInMs / (1000 * 60 * 60));
+              const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+              const diffInWeeks = Math.round(diffInDays / 7);
+              const diffInMonths = Math.round(diffInDays / 30);
+              const diffInYears = Math.round(diffInDays / 365);
+
+              // 표시할 시간 단위 선택
+              let timeAgo = "";
+              if (diffInYears > 1) {
+                timeAgo = `${diffInYears} 년전`;
+              } else if (diffInMonths > 1) {
+                timeAgo = `${diffInMonths} 달전`;
+              } else if (diffInWeeks > 1) {
+                timeAgo = `${diffInWeeks} 주전`;
+              } else if (diffInDays > 1) {
+                timeAgo = `${diffInDays} 일전`;
+              } else if (diffInHours > 1) {
+                timeAgo = `${diffInHours} 시간전`;
+              } else {
+                timeAgo = "방금전";
+              }
+
+              return (
+                <article
+                  key={post.id}
+                  className="flex max-w-xl flex-col items-start justify-between shadow-lg"
+                >
+                  <div className="rounded-md bg-white p-5">
+                    <div className="flex items-center gap-x-4 text-xs">
+                      <time dateTime={post.regDate} className="text-gray-500">
+                        {timeAgo}
+                      </time>
+                      <a
+                        href="#"
+                        className="btn-primary relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
+                      >
+                        {post.teachingSubject}
                       </a>
-                    </p>
-                    <p className="text-gray-600">{post.placeName} {post.ageGroup}</p>
+                    </div>
+                    <div className="group relative">
+                      <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
+                        <a href="#">
+                          <span className="absolute inset-0" />
+                          {post.title}
+                        </a>
+                      </h3>
+                      <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">
+                        {post.content}
+                      </p>
+                    </div>
+                    <div className="relative mt-8 flex items-center gap-x-4">
+                      {post.avatar ? (
+                        <img
+                          src={post.avatar}
+                          alt=""
+                          className="h-10 w-10 rounded-full bg-gray-50"
+                        />
+                      ) : (
+                        <img
+                          src="/images/users/user.png"
+                          alt="Default Avatar"
+                          className="h-10 w-10 rounded-full bg-gray-50"
+                        />
+                      )}
+                      <div className="text-sm leading-6">
+                        <p className="font-semibold text-gray-900">
+                          <a href="#">
+                            <span className="absolute inset-0" />
+                            {post.writer}
+                          </a>
+                        </p>
+                        <p className="text-gray-600">
+                          {post.placeName} {post.ageGroup}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
       </div>
