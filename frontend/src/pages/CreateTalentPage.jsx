@@ -1,19 +1,19 @@
 import React from "react";
 import Header from "../components/Layout/Header";
 import Footer from "../components/Layout/Footer";
-import CreateNotice from "../components/Notice/CreateNotice";
+import CreateTalent from "../components/Talent/CreateTalent";
 
 
 
-const CreateNoticePage = () => {
+const CreateTalentPage = () => {
   return (
     <>
       <Header />
-        <CreateNotice />
+        <CreateTalent />
       <Footer />
 
     </>
   );
 };
 
-export default CreateNoticePage;
+export default CreateTalentPage;

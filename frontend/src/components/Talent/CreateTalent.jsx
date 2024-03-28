@@ -1,15 +1,16 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { placeName } from "../../static/data";
 
-const CreateNotice = () => {
+const CreateTalent = () => {
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [writer, setWriter] = useState("")
+  const [writer, setWriter] = useState("");
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
@@ -37,7 +38,7 @@ const CreateNotice = () => {
     if (user) {
       // user가 정의되어 있을 때에만 초기값 업데이트
       setWriter(user.id || "");
-    //   setAvatar(user.imgUrl || "");
+      //   setAvatar(user.imgUrl || "");
     }
   }, [user]);
 
@@ -53,17 +54,17 @@ const CreateNotice = () => {
         content,
       };
 
-      console.log(writer, title, content)
+      console.log(writer, title, content);
 
       // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
       const formData = new FormData();
 
       const filesToUpload = files || [];
-      console.log(filesToUpload)
+      console.log(filesToUpload);
       filesToUpload.forEach((file, index) => {
         // 파일 필드의 이름을 설정 (filename 속성 추가)
         formData.append(`files`, file.file, file.file.name);
-    });
+      });
 
       // 나머지 데이터를 JSON 문자열로 변환하여 FormData에 추가
       formData.append(
@@ -78,20 +79,20 @@ const CreateNotice = () => {
         process.env.REACT_APP_SERVER + `/v1/notices/register`,
         formData,
         {
-            withCredentials: true,
-            headers: {
-                Authorization: accessToken,
-                "Content-Type": "multipart/form-data",
-            },
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
-   // 성공 시 서버 응답을 출력
-      console.log(response)
+      // 성공 시 서버 응답을 출력
+      console.log(response);
       toast.success(response.data.returnMessage);
-      navigate('/notice');
+      navigate("/notice");
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error(error.response.data.message);
     }
   };
@@ -123,19 +124,20 @@ const CreateNotice = () => {
             <div className="mt-4 max-w-[810px] lg:col-9">
               <div className="comments mb-6">
                 <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
-                  공지 등록
+                  재능 등록
                 </h3>
               </div>
               <form className="comment-form" onSubmit={handleSubmit}>
                 <div className="form-group mt-8 md:col-12 lg:col-12">
-                  <p className="mb-4">공지 제목</p>
-
+                  <p className="mb-4 text-black ">글 제목</p>
+                  {/* <label className="form-label" htmlFor="title">Full Name</label> */}
                   <input
                     type="text"
                     name="title"
                     value={title}
+                    placeholder="글 제목을 입력해주세요"
+                    className="form-control"
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder=""
                   />
                 </div>
                 {/* <div className="row mb-8">
@@ -146,9 +148,11 @@ const CreateNotice = () => {
                     <input type="text" placeholder="Website" />
                   </div>
                 </div> */}
-                <p className="mb-4 mt-8">공지 내용</p>
+                <p className="mb-4 mt-8 text-black">내용</p>
                 <div className="form-group mb-4">
+                  {/* <label className="form-label text-black" htmlFor="email">내용</label> */}
                   <textarea
+                    className="form-control"
                     cols="30"
                     rows="10"
                     required
@@ -156,7 +160,26 @@ const CreateNotice = () => {
                     name="content"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
+                    placeholder="글 내용을 입력해주세요"
                   ></textarea>
+                </div>
+                <div className="form-group mb-5">
+                  <label className="form-label mb-4" htmlFor="reason">
+                    지역
+                  </label>
+                  <select
+                    name="reason"
+                    id="reason"
+                    className="form-select"
+                    required
+                  >
+                    <option value="">지역을 선택해주세요</option>
+                    {placeName.map((place, index) => (
+                      <option key={index} value={place}>
+                        {place}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <label className="pb-4">
@@ -192,7 +215,7 @@ const CreateNotice = () => {
                 <input
                   type="submit"
                   className="btn btn-primary mt-8 min-w-[189px] cursor-pointer"
-                  value="공지 등록"
+                  value="재능 등록"
                 />
               </form>
             </div>
@@ -203,4 +226,4 @@ const CreateNotice = () => {
   );
 };
 
-export default CreateNotice;
+export default CreateTalent;

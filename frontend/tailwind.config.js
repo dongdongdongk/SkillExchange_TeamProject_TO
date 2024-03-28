@@ -67,6 +67,7 @@ module.exports = {
       fontFamily: {
         primary: [fontPrimary, fontPrimaryType],
         secondary: [fontSecondary, fontSecondaryType],
+        noto: ["Noto Sans KR", "sans-serif"],
       },
     },
   },
