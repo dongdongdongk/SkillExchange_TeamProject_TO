@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { placeName, Category } from "../../static/data";
+import { placeName } from "../../static/data";
 import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 
 const CreateTalent = () => {
@@ -14,12 +14,25 @@ const CreateTalent = () => {
   const [writer, setWriter] = useState("");
   const [mainCategory, setMainCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
+  const [Category , setCategory] = useState([]);
   const [selectedDays, setSelectedDays] = useState([]);
   const [minAge, setMinAge] = useState("");
   const [maxAge, setMaxAge] = useState("");
+  const [gender, setGender] = useState("");
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
+
+  const fetchCategory = async () => {
+    try {
+      const response = await axios.get(
+        process.env.REACT_APP_SERVER + `/v1/subjectCategory/list`,
+      );
+      setCategory(response.data);
+    } catch (error) {
+      console.error("카테고리 불러오기 실패", error);
+    }
+  };
 
   const handleFileChange = (e) => {
     e.preventDefault();
@@ -47,6 +60,11 @@ const CreateTalent = () => {
       //   setAvatar(user.imgUrl || "");
     }
   }, [user]);
+  
+  useEffect(() => {
+
+    fetchCategory();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,6 +79,7 @@ const CreateTalent = () => {
         selectedDays,
         minAge,
         maxAge,
+        gender
       };
 
       console.log("보내는 데이터:", noticeDto); // 보내는 데이터 확인
@@ -87,7 +106,6 @@ const CreateTalent = () => {
     );
     return selectedMainCategory ? selectedMainCategory.children : [];
   };
-
 
   return (
     <>
@@ -277,6 +295,26 @@ const CreateTalent = () => {
                   </div>
                 </div>
 
+                {/* 희망 성별 */}
+                <div className="form-group mb-5">
+                  <label className="form-label col-6 mb-4" htmlFor="gender">
+                    희망 성별
+                  </label>
+                  <select
+                    name="gender"
+                    id="gender"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">희망 성별 선택</option>
+                    <option value="MALE">남성</option>
+                    <option value="FEMALE">여성</option>
+                    <option value="UNKNOWN">무관</option>
+                  </select>
+                </div>
+
                 {/* 희망 요일 */}
                 <div>
                   <label className="form-label col-6 mb-4" htmlFor="희망 요일">
@@ -287,13 +325,13 @@ const CreateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("월요일")}
+                            defaultChecked={selectedDays.includes("MON")}
                             onChange={(e) =>
                               e.target.checked
-                                ? setSelectedDays([...selectedDays, "월요일"])
+                                ? setSelectedDays([...selectedDays, "MON"])
                                 : setSelectedDays(
                                     selectedDays.filter(
-                                      (day) => day !== "월요일"
+                                      (day) => day !== "MON"
                                     )
                                   )
                             }
@@ -304,13 +342,13 @@ const CreateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("화요일")}
+                            defaultChecked={selectedDays.includes("TUE")}
                             onChange={(e) =>
                               e.target.checked
-                                ? setSelectedDays([...selectedDays, "화요일"])
+                                ? setSelectedDays([...selectedDays, "TUE"])
                                 : setSelectedDays(
                                     selectedDays.filter(
-                                      (day) => day !== "화요일"
+                                      (day) => day !== "TUE"
                                     )
                                   )
                             }
@@ -321,13 +359,13 @@ const CreateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("수요일")}
+                            defaultChecked={selectedDays.includes("WED")}
                             onChange={(e) =>
                               e.target.checked
-                                ? setSelectedDays([...selectedDays, "수요일"])
+                                ? setSelectedDays([...selectedDays, "WED"])
                                 : setSelectedDays(
                                     selectedDays.filter(
-                                      (day) => day !== "수요일"
+                                      (day) => day !== "WED"
                                     )
                                   )
                             }
@@ -338,13 +376,13 @@ const CreateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("목요일")}
+                            defaultChecked={selectedDays.includes("THU")}
                             onChange={(e) =>
                               e.target.checked
-                                ? setSelectedDays([...selectedDays, "목요일"])
+                                ? setSelectedDays([...selectedDays, "THU"])
                                 : setSelectedDays(
                                     selectedDays.filter(
-                                      (day) => day !== "목요일"
+                                      (day) => day !== "THU"
                                     )
                                   )
                             }
@@ -355,13 +393,13 @@ const CreateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("금요일")}
+                            defaultChecked={selectedDays.includes("FRI")}
                             onChange={(e) =>
                               e.target.checked
-                                ? setSelectedDays([...selectedDays, "금요일"])
+                                ? setSelectedDays([...selectedDays, "FRI"])
                                 : setSelectedDays(
                                     selectedDays.filter(
-                                      (day) => day !== "금요일"
+                                      (day) => day !== "FRI"
                                     )
                                   )
                             }
@@ -372,13 +410,13 @@ const CreateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("토요일")}
+                            defaultChecked={selectedDays.includes("SAT")}
                             onChange={(e) =>
                               e.target.checked
-                                ? setSelectedDays([...selectedDays, "토요일"])
+                                ? setSelectedDays([...selectedDays, "SAT"])
                                 : setSelectedDays(
                                     selectedDays.filter(
-                                      (day) => day !== "토요일"
+                                      (day) => day !== "SAT"
                                     )
                                   )
                             }
@@ -389,13 +427,13 @@ const CreateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("일요일")}
+                            defaultChecked={selectedDays.includes("SUN")}
                             onChange={(e) =>
                               e.target.checked
-                                ? setSelectedDays([...selectedDays, "일요일"])
+                                ? setSelectedDays([...selectedDays, "SUN"])
                                 : setSelectedDays(
                                     selectedDays.filter(
-                                      (day) => day !== "일요일"
+                                      (day) => day !== "SUN"
                                     )
                                   )
                             }

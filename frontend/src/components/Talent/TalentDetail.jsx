@@ -78,15 +78,9 @@ function TalentDetail() {
           <div className="row lg:gx-4">
             <div className="lg:col-8">
               <div className="career-single-content rounded-xl bg-white p-7 shadow-lg lg:px-12 lg:py-[60px]">
-                <h5 className="h5">{talentData.title}</h5>
+                <h5 className="h4 text-center mb-6">제목 : {talentData?.title}</h5>
                 <p>
-                  We are looking for a personal financial planning pro
-                  (Certified Financial Planner™ preferred) who will lead our
-                  client advising efforts. You will be a fiduciary who works
-                  with clients providing holistic advice on areas including:
-                  saving, retirement, debt management, investments. You’ll be on
-                  the front lines helping clients in what is arguably the most
-                  important position at the company.
+                  {talentData?.content}
                 </p>
                 <h5 className="h5">About you</h5>
                 <p>
@@ -111,45 +105,8 @@ function TalentDetail() {
                   client advising efforts. on areas including: saving,
                   retirement, debt management,
                 </p>
-                <h5 className="h5">Responsibilities</h5>
-                <ul>
-                  <li>
-                    Enhance or improve User experience, our Site, or our
-                    Service.
-                  </li>
-                  <li>Process transactions.</li>
-                  <li>Send emails about our Site or respond to inquiries.</li>
-                  <li>
-                    Send emails and updates about Conclude, including news and
-                    requests for agreement to amended legal documents such
-                  </li>
-                  <li>
-                    Perform any other function that we believe in good is
-                    necessary to protect the or proper functioning of our Site
-                    or Service.
-                  </li>
-                </ul>
-                <h5 className="h5">Requirements</h5>
-                <p>
-                  We are looking for a personal financial planning pro
-                  (Certified Financial Planner™ preferred) who will lead our
-                  client advising efforts. You will be a fiduciary who works
-                  with clients providing holistic advice on areas including:
-                  saving, retirement, debt
-                </p>
-                <h5 className="h5">We offer you</h5>
-                <ul>
-                  <li>
-                    Enhance or improve User experience, our Site, or our
-                    Service.
-                  </li>
-                  <li>Process transactions.</li>
-                  <li>Send emails about our Site or respond to inquiries.</li>
-                  <li>
-                    Send emails and updates about Conclude, including news and
-                    requests for agreement to amended legal documents such
-                  </li>
-                </ul>
+                
+                
               </div>
             </div>
             <div className="career-single-sidebar mt-8 lg:col-4 lg:mt-0">
