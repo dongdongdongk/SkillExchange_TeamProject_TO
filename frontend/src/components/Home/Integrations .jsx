@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const IntegrationBox = ({ imageSrc, title, category, description }) => {
   return (
@@ -91,10 +92,12 @@ const Integrations = () => {
               }
 
               return (
-                <article
+                <Link
                   key={post.id}
+                  to={`/talent/${post.id}`}
                   className="flex max-w-xl flex-col items-start justify-between shadow-lg"
                 >
+                <article >
                   <div className="rounded-md bg-white p-5">
                     <div className="flex items-center gap-x-4 text-xs">
                       <time dateTime={post.regDate} className="text-gray-500">
@@ -146,6 +149,7 @@ const Integrations = () => {
                     </div>
                   </div>
                 </article>
+                </Link>
               );
             })}
           </div>

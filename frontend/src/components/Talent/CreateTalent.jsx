@@ -4,13 +4,19 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { placeName } from "../../static/data";
+import { placeName, Category } from "../../static/data";
+import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 
 const CreateTalent = () => {
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [writer, setWriter] = useState("");
+  const [mainCategory, setMainCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
+  const [selectedDays, setSelectedDays] = useState([]);
+  const [minAge, setMinAge] = useState("");
+  const [maxAge, setMaxAge] = useState("");
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
@@ -46,56 +52,42 @@ const CreateTalent = () => {
     e.preventDefault();
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-
       const noticeDto = {
         writer,
         title,
         content,
+        mainCategory,
+        subCategory,
+        selectedDays,
+        minAge,
+        maxAge,
       };
 
-      console.log(writer, title, content);
+      console.log("보내는 데이터:", noticeDto); // 보내는 데이터 확인
 
-      // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
-      const formData = new FormData();
-
-      const filesToUpload = files || [];
-      console.log(filesToUpload);
-      filesToUpload.forEach((file, index) => {
-        // 파일 필드의 이름을 설정 (filename 속성 추가)
-        formData.append(`files`, file.file, file.file.name);
-      });
-
-      // 나머지 데이터를 JSON 문자열로 변환하여 FormData에 추가
-      formData.append(
-        "noticeDto",
-        new Blob([JSON.stringify(noticeDto)], {
-          type: "application/json",
-        })
-      );
-
-      // axios를 사용하여 서버로 데이터 전송
-      const response = await axios.post(
-        process.env.REACT_APP_SERVER + `/v1/notices/register`,
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: accessToken,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      // 성공 시 서버 응답을 출력
-      console.log(response);
-      toast.success(response.data.returnMessage);
-      navigate("/notice");
+      // 여기서 axios 요청을 보내지 않고, 데이터만 콘솔에 출력합니다.
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error("데이터 전송 중 오류가 발생했습니다.");
     }
   };
+
+  const handleMainCategoryChange = (event) => {
+    setMainCategory(event.target.value);
+    setSubCategory("");
+  };
+
+  const handleSubCategoryChange = (event) => {
+    setSubCategory(event.target.value);
+  };
+
+  const getSubCategories = () => {
+    const selectedMainCategory = Category.find(
+      (category) => category.name === mainCategory
+    );
+    return selectedMainCategory ? selectedMainCategory.children : [];
+  };
+
 
   return (
     <>
@@ -180,6 +172,239 @@ const CreateTalent = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* 희망 카테고리 */}
+                <div className="form-group mb-5">
+                  <div className="row">
+                    <div className="col-6">
+                      <label
+                        className="form-label col-6 mb-4"
+                        htmlFor="mainCategory"
+                      >
+                        대분류
+                      </label>
+                      <select
+                        name="mainCategory"
+                        id="mainCategory"
+                        value={mainCategory}
+                        onChange={handleMainCategoryChange}
+                        className="form-select"
+                        required
+                      >
+                        <option value="">대분류 선택</option>
+                        {Category.map((category) => (
+                          <option key={category.id} value={category.name}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="col-6">
+                      <label
+                        className="form-label col-6 mb-4"
+                        htmlFor="subCategory"
+                      >
+                        소분류
+                      </label>
+                      <select
+                        name="subCategory"
+                        id="subCategory"
+                        value={subCategory}
+                        onChange={handleSubCategoryChange}
+                        className="form-select"
+                        required
+                      >
+                        <option value="">소분류 선택</option>
+                        {getSubCategories().map((subCategory) => (
+                          <option key={subCategory.id} value={subCategory.name}>
+                            {subCategory.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 희망연령 */}
+                <div className="form-group mb-5">
+                  <div className="row">
+                    <div className="col-6">
+                      <label className="form-label col-6 mb-4" htmlFor="minAge">
+                        희망 최소 연령
+                      </label>
+                      <select
+                        name="minAge"
+                        id="minAge"
+                        value={minAge}
+                        onChange={(e) => setMinAge(e.target.value)}
+                        className="form-select"
+                        required
+                      >
+                        <option value="">최소 연령 선택</option>
+                        {Array.from({ length: 66 }, (_, i) => i + 20).map(
+                          (age) => (
+                            <option key={age} value={age}>
+                              {age}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label col-6 mb-4" htmlFor="maxAge">
+                        희망 최대 연령
+                      </label>
+                      <select
+                        name="maxAge"
+                        id="maxAge"
+                        value={maxAge}
+                        onChange={(e) => setMaxAge(e.target.value)}
+                        className="form-select"
+                        required
+                      >
+                        <option value="">최대 연령 선택</option>
+                        {Array.from({ length: 66 }, (_, i) => i + 20).map(
+                          (age) => (
+                            <option key={age} value={age}>
+                              {age}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 희망 요일 */}
+                <div>
+                  <label className="form-label col-6 mb-4" htmlFor="희망 요일">
+                    희망 요일
+                  </label>
+                  <div className="mb-5">
+                    <FormGroup style={{ display: "inline-block" }}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked={selectedDays.includes("월요일")}
+                            onChange={(e) =>
+                              e.target.checked
+                                ? setSelectedDays([...selectedDays, "월요일"])
+                                : setSelectedDays(
+                                    selectedDays.filter(
+                                      (day) => day !== "월요일"
+                                    )
+                                  )
+                            }
+                          />
+                        }
+                        label="월요일"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked={selectedDays.includes("화요일")}
+                            onChange={(e) =>
+                              e.target.checked
+                                ? setSelectedDays([...selectedDays, "화요일"])
+                                : setSelectedDays(
+                                    selectedDays.filter(
+                                      (day) => day !== "화요일"
+                                    )
+                                  )
+                            }
+                          />
+                        }
+                        label="화요일"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked={selectedDays.includes("수요일")}
+                            onChange={(e) =>
+                              e.target.checked
+                                ? setSelectedDays([...selectedDays, "수요일"])
+                                : setSelectedDays(
+                                    selectedDays.filter(
+                                      (day) => day !== "수요일"
+                                    )
+                                  )
+                            }
+                          />
+                        }
+                        label="수요일"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked={selectedDays.includes("목요일")}
+                            onChange={(e) =>
+                              e.target.checked
+                                ? setSelectedDays([...selectedDays, "목요일"])
+                                : setSelectedDays(
+                                    selectedDays.filter(
+                                      (day) => day !== "목요일"
+                                    )
+                                  )
+                            }
+                          />
+                        }
+                        label="목요일"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked={selectedDays.includes("금요일")}
+                            onChange={(e) =>
+                              e.target.checked
+                                ? setSelectedDays([...selectedDays, "금요일"])
+                                : setSelectedDays(
+                                    selectedDays.filter(
+                                      (day) => day !== "금요일"
+                                    )
+                                  )
+                            }
+                          />
+                        }
+                        label="금요일"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked={selectedDays.includes("토요일")}
+                            onChange={(e) =>
+                              e.target.checked
+                                ? setSelectedDays([...selectedDays, "토요일"])
+                                : setSelectedDays(
+                                    selectedDays.filter(
+                                      (day) => day !== "토요일"
+                                    )
+                                  )
+                            }
+                          />
+                        }
+                        label="토요일"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked={selectedDays.includes("일요일")}
+                            onChange={(e) =>
+                              e.target.checked
+                                ? setSelectedDays([...selectedDays, "일요일"])
+                                : setSelectedDays(
+                                    selectedDays.filter(
+                                      (day) => day !== "일요일"
+                                    )
+                                  )
+                            }
+                          />
+                        }
+                        label="일요일"
+                      />
+                    </FormGroup>
+                  </div>
                 </div>
 
                 <label className="pb-4">
