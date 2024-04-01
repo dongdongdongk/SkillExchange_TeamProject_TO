@@ -95,10 +95,11 @@ const Integrations = () => {
                 <Link
                   key={post.id}
                   to={`/talent/${post.id}`}
-                  className="flex max-w-xl flex-col items-start justify-between shadow-lg"
+                  className="flex max-w-xl flex-col items-start justify-between shadow-lg h-full"
+                  
                 >
-                <article >
-                  <div className="rounded-md bg-white p-5">
+                <article className="w-full h-full">
+                  <div className="rounded-md bg-white p-5 max-w-full h-full ">
                     <div className="flex items-center gap-x-4 text-xs">
                       <time dateTime={post.regDate} className="text-gray-500">
                         {timeAgo}
@@ -111,7 +112,7 @@ const Integrations = () => {
                       </a>
                     </div>
                     <div className="group relative">
-                      <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
+                      <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600 ">
                         <a href="#">
                           <span className="absolute inset-0" />
                           {post.title}
@@ -121,7 +122,7 @@ const Integrations = () => {
                         {post.content}
                       </p>
                     </div>
-                    <div className="relative mt-8 flex items-center gap-x-4">
+                    <div className="relative mt-8 flex items-center gap-x-4 ">
                       {post.avatar ? (
                         <img
                           src={post.avatar}

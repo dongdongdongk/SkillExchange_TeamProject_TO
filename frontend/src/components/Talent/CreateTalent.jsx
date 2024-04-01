@@ -14,11 +14,14 @@ const CreateTalent = () => {
   const [writer, setWriter] = useState("");
   const [mainCategory, setMainCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
-  const [Category , setCategory] = useState([]);
+  const [myMainCategory, setMyMainCategory] = useState("");
+  const [mySubCategory, setMySubCategory] = useState("");
+  const [Category, setCategory] = useState([]);
   const [selectedDays, setSelectedDays] = useState([]);
   const [minAge, setMinAge] = useState("");
   const [maxAge, setMaxAge] = useState("");
   const [gender, setGender] = useState("");
+  const [place, setPlace] = useState("");
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
@@ -26,7 +29,7 @@ const CreateTalent = () => {
   const fetchCategory = async () => {
     try {
       const response = await axios.get(
-        process.env.REACT_APP_SERVER + `/v1/subjectCategory/list`,
+        process.env.REACT_APP_SERVER + `/v1/subjectCategory/list`
       );
       setCategory(response.data);
     } catch (error) {
@@ -60,9 +63,8 @@ const CreateTalent = () => {
       //   setAvatar(user.imgUrl || "");
     }
   }, [user]);
-  
-  useEffect(() => {
 
+  useEffect(() => {
     fetchCategory();
   }, []);
 
@@ -70,24 +72,61 @@ const CreateTalent = () => {
     e.preventDefault();
 
     try {
-      const noticeDto = {
+      const accessToken = localStorage.getItem("accessToken");
+
+      const talentDto = {
         writer,
-        title,
-        content,
-        mainCategory,
-        subCategory,
+        placeName: place,
+        teachingSubject: subCategory,
+        teachedSubject: mySubCategory,
         selectedDays,
         minAge,
         maxAge,
-        gender
+        gender,
+        title,
+        content,
       };
 
-      console.log("보내는 데이터:", noticeDto); // 보내는 데이터 확인
+      console.log("보내는 데이터:", talentDto); // 보내는 데이터 확인
+
+      // FormData를 사용하여 이미지 및 필드 데이터를 모두 담음
+      const formData = new FormData();
+
+      const filesToUpload = files || [];
+      console.log(filesToUpload);
+      filesToUpload.forEach((file, index) => {
+        // 파일 필드의 이름을 설정 (filename 속성 추가)
+        formData.append(`files`, file.file, file.file.name);
+      });
+
+      // 나머지 데이터를 JSON 문자열로 변환하여 FormData에 추가
+      formData.append(
+        "talentDto",
+        new Blob([JSON.stringify(talentDto)], {
+          type: "application/json",
+        })
+      );
+
+      // axios를 사용하여 서버로 데이터 전송
+      const response = await axios.post(
+        process.env.REACT_APP_SERVER + `/v1/talent/register`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       // 여기서 axios 요청을 보내지 않고, 데이터만 콘솔에 출력합니다.
+      console.log(response);
+      toast.success(response.data.returnMessage);
+      // navigate("/notice");
     } catch (error) {
       console.log(error);
-      toast.error("데이터 전송 중 오류가 발생했습니다.");
+      toast.error(error.response.data.message);
     }
   };
 
@@ -98,6 +137,15 @@ const CreateTalent = () => {
 
   const handleSubCategoryChange = (event) => {
     setSubCategory(event.target.value);
+  };
+
+  const handleMyMainCategoryChange = (event) => {
+    setMyMainCategory(event.target.value);
+    setMySubCategory("");
+  };
+
+  const handleMySubCategoryChange = (event) => {
+    setMySubCategory(event.target.value);
   };
 
   const getSubCategories = () => {
@@ -174,13 +222,15 @@ const CreateTalent = () => {
                   ></textarea>
                 </div>
                 <div className="form-group mb-5">
-                  <label className="form-label mb-4" htmlFor="reason">
+                  <label className="form-label mb-4" htmlFor="place">
                     지역
                   </label>
                   <select
-                    name="reason"
-                    id="reason"
+                    name="place"
+                    id="place"
                     className="form-select"
+                    value={place} // 선택한 place 값을 select 요소의 value로 설정
+                    onChange={(e) => setPlace(e.target.value)} // 선택한 place 값을 업데이트
                     required
                   >
                     <option value="">지역을 선택해주세요</option>
@@ -200,7 +250,7 @@ const CreateTalent = () => {
                         className="form-label col-6 mb-4"
                         htmlFor="mainCategory"
                       >
-                        대분류
+                        희망 재능
                       </label>
                       <select
                         name="mainCategory"
@@ -224,13 +274,66 @@ const CreateTalent = () => {
                         className="form-label col-6 mb-4"
                         htmlFor="subCategory"
                       >
-                        소분류
+                        <br />
                       </label>
                       <select
                         name="subCategory"
                         id="subCategory"
                         value={subCategory}
                         onChange={handleSubCategoryChange}
+                        className="form-select"
+                        required
+                      >
+                        <option value="">소분류 선택</option>
+                        {getSubCategories().map((subCategory) => (
+                          <option key={subCategory.id} value={subCategory.name}>
+                            {subCategory.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 보유 재능 */}
+                <div className="form-group mb-5">
+                  <div className="row">
+                    <div className="col-6">
+                      <label
+                        className="form-label col-6 mb-4"
+                        htmlFor="myMainCategory"
+                      >
+                        보유 재능
+                      </label>
+                      <select
+                        name="myMainCategory"
+                        id="myMainCategory"
+                        value={myMainCategory}
+                        onChange={handleMyMainCategoryChange}
+                        className="form-select"
+                        required
+                      >
+                        <option value="">대분류 선택</option>
+                        {Category.map((category) => (
+                          <option key={category.id} value={category.name}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="col-6">
+                      <label
+                        className="form-label col-6 mb-4"
+                        htmlFor="mySubCategory"
+                      >
+                        <br />
+                      </label>
+                      <select
+                        name="mySubCategory"
+                        id="mySubCategory"
+                        value={mySubCategory}
+                        onChange={handleMySubCategoryChange}
                         className="form-select"
                         required
                       >
@@ -330,9 +433,7 @@ const CreateTalent = () => {
                               e.target.checked
                                 ? setSelectedDays([...selectedDays, "MON"])
                                 : setSelectedDays(
-                                    selectedDays.filter(
-                                      (day) => day !== "MON"
-                                    )
+                                    selectedDays.filter((day) => day !== "MON")
                                   )
                             }
                           />
@@ -347,9 +448,7 @@ const CreateTalent = () => {
                               e.target.checked
                                 ? setSelectedDays([...selectedDays, "TUE"])
                                 : setSelectedDays(
-                                    selectedDays.filter(
-                                      (day) => day !== "TUE"
-                                    )
+                                    selectedDays.filter((day) => day !== "TUE")
                                   )
                             }
                           />
@@ -364,9 +463,7 @@ const CreateTalent = () => {
                               e.target.checked
                                 ? setSelectedDays([...selectedDays, "WED"])
                                 : setSelectedDays(
-                                    selectedDays.filter(
-                                      (day) => day !== "WED"
-                                    )
+                                    selectedDays.filter((day) => day !== "WED")
                                   )
                             }
                           />
@@ -381,9 +478,7 @@ const CreateTalent = () => {
                               e.target.checked
                                 ? setSelectedDays([...selectedDays, "THU"])
                                 : setSelectedDays(
-                                    selectedDays.filter(
-                                      (day) => day !== "THU"
-                                    )
+                                    selectedDays.filter((day) => day !== "THU")
                                   )
                             }
                           />
@@ -398,9 +493,7 @@ const CreateTalent = () => {
                               e.target.checked
                                 ? setSelectedDays([...selectedDays, "FRI"])
                                 : setSelectedDays(
-                                    selectedDays.filter(
-                                      (day) => day !== "FRI"
-                                    )
+                                    selectedDays.filter((day) => day !== "FRI")
                                   )
                             }
                           />
@@ -415,9 +508,7 @@ const CreateTalent = () => {
                               e.target.checked
                                 ? setSelectedDays([...selectedDays, "SAT"])
                                 : setSelectedDays(
-                                    selectedDays.filter(
-                                      (day) => day !== "SAT"
-                                    )
+                                    selectedDays.filter((day) => day !== "SAT")
                                   )
                             }
                           />
@@ -432,9 +523,7 @@ const CreateTalent = () => {
                               e.target.checked
                                 ? setSelectedDays([...selectedDays, "SUN"])
                                 : setSelectedDays(
-                                    selectedDays.filter(
-                                      (day) => day !== "SUN"
-                                    )
+                                    selectedDays.filter((day) => day !== "SUN")
                                   )
                             }
                           />

@@ -197,7 +197,7 @@ const NoticeDetailComponent = () => {
       const accessToken = localStorage.getItem("accessToken");
       const userId = localStorage.getItem("userId");
   
-      if (!userId) {
+      if (!user) {
         throw new Error("사용자가 로그인되어 있지 않습니다. 댓글을 등록하려면 먼저 로그인하세요.");
       }
   
@@ -206,7 +206,7 @@ const NoticeDetailComponent = () => {
         {
           noticeId,
           parentId: newCommentParentId,
-          writer: userId,
+          writer: user.id,
           content: newCommentContent,
         },
         {
