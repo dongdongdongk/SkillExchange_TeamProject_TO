@@ -7,7 +7,7 @@ import axios from "axios";
 import { placeName } from "../../static/data";
 import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 
-const CreateTalent = () => {
+const UpdateTalent = () => {
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -66,7 +66,20 @@ const CreateTalent = () => {
 
   useEffect(() => {
     fetchCategory();
-  }, []);
+    if (talentData) {
+      setTitle(talentData.title || "");
+      setContent(talentData.content || "");
+      setPlace(talentData.placeName || "");
+      setMainCategory(talentData.teachingSubject || "");
+      setSubCategory(talentData.teachedSubject || "");
+      setMyMainCategory(talentData.teachedSubject || "");
+      setMySubCategory(talentData.teachedSubject || "");
+      setSelectedDays(talentData.selectedDays || []);
+      setMinAge(talentData.minAge || "");
+      setMaxAge(talentData.maxAge || "");
+      setGender(talentData.gender || "");
+    }
+  }, [talentData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -123,7 +136,7 @@ const CreateTalent = () => {
       // 여기서 axios 요청을 보내지 않고, 데이터만 콘솔에 출력합니다.
       console.log(response);
       toast.success(response.data.returnMessage);
-      navigate("/");
+      // navigate("/notice");
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
@@ -151,13 +164,6 @@ const CreateTalent = () => {
   const getSubCategories = () => {
     const selectedMainCategory = Category.find(
       (category) => category.name === mainCategory
-    );
-    return selectedMainCategory ? selectedMainCategory.children : [];
-  };
-
-  const getMySubCategories = () => {
-    const selectedMainCategory = Category.find(
-      (category) => category.name === myMainCategory
     );
     return selectedMainCategory ? selectedMainCategory.children : [];
   };
@@ -345,7 +351,7 @@ const CreateTalent = () => {
                         required
                       >
                         <option value="">소분류 선택</option>
-                        {getMySubCategories().map((subCategory) => (
+                        {getSubCategories().map((subCategory) => (
                           <option key={subCategory.id} value={subCategory.name}>
                             {subCategory.name}
                           </option>
@@ -585,4 +591,4 @@ const CreateTalent = () => {
   );
 };
 
-export default CreateTalent;
+export default UpdateTalent;

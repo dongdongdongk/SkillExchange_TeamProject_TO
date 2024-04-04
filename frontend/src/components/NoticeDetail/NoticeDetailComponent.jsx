@@ -87,7 +87,7 @@ const CommentList = ({
   currentUserId,
   level = 0, // Added level parameter to track the nesting level
 }) => (
-  <div className={`comments`} style={{ marginLeft: `${level * 15}px` }}>
+  <div className={`comments bg-white rounded-lg`} style={{ marginLeft: `${level * 15}px` }}>
     {comments.map((comment) => (
       <div key={comment.id} className={`comment-level-${level}`}>
         <div className="comment-container flex items-center">
@@ -307,6 +307,8 @@ const NoticeDetailComponent = () => {
             <img className="rounded-xl" src="images/blog-single.png" alt="" />
           </div>
           <div className="mt-10 max-w-[810px] lg:col-9">
+            
+            <div className="border-2 rounded-lg p-4 bg-white mb-4">
             <div className="mb-4 flex items-center justify-between">
               <h1 className="h2">{notice.title}</h1>
               {user && user.id === notice.writer && (
@@ -325,7 +327,7 @@ const NoticeDetailComponent = () => {
                 </div>
               )}
             </div>
-            <div className="mb-5 mt-6 flex items-center space-x-2">
+            <div className="mt-6 flex items-center space-x-2">
               <div className="blog-author-avatar h-[58px] w-[58px] rounded-full border-2 border-primary p-0.5">
                 {notice && notice.avatar ? (
                   <img
@@ -348,8 +350,10 @@ const NoticeDetailComponent = () => {
                 </span>
               </div>
             </div>
+            </div>
 
-            <div className="content">
+
+            <div className="content min-h-[300px] border-2 rounded-lg p-4 bg-white">
               <p>{notice.content}</p>
             </div>
 
@@ -365,6 +369,9 @@ const NoticeDetailComponent = () => {
                   />
                 ))}
             </div>
+            
+            {/* 댓글 섹션 */}
+            <div>
             <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
               댓글
             </h3>
@@ -401,6 +408,7 @@ const NoticeDetailComponent = () => {
                 value="댓글 등록"
               />
             </form>
+            </div>
           </div>
         </div>
       </div>

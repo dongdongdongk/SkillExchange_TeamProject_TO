@@ -11,7 +11,7 @@
 
 //         fetchData();
 //       }, []);
-    
+
 //       const fetchData = async () => {
 //         try {
 //           const response = await axios.get(
@@ -20,7 +20,7 @@
 //           setTalentData(response.data);
 //         } catch (error) {
 //           console.error("Error fetching data:", error);
-//         } 
+//         }
 //       };
 //       console.log(talentData);
 
@@ -105,8 +105,7 @@
 //                   client advising efforts. on areas including: saving,
 //                   retirement, debt management,
 //                 </p>
-                
-                
+
 //               </div>
 //             </div>
 //             <div className="career-single-sidebar mt-8 lg:col-4 lg:mt-0">
@@ -237,9 +236,6 @@
 // }
 
 // export default TalentDetail;
-
-
-
 
 import React, { useMemo, useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
@@ -390,24 +386,23 @@ const TalentDetail = () => {
   const { user } = useSelector((state) => state.user);
 
   const { id } = useParams();
-    const [talentData , setTalentData] =useState();
+  const [talentData, setTalentData] = useState();
 
-    useEffect(() => {
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-        fetchData();
-      }, []);
-    
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(
-            process.env.REACT_APP_SERVER + `/v1/talent/${id}`,
-          );
-          setTalentData(response.data);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } 
-      };
-      console.log(talentData);
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        process.env.REACT_APP_SERVER + `/v1/talent/${id}`
+      );
+      setTalentData(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  console.log(talentData);
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -455,15 +450,15 @@ const TalentDetail = () => {
 
   // const handleCommentSubmit = async (e) => {
   //   e.preventDefault();
-  
+
   //   try {
   //     const accessToken = localStorage.getItem("accessToken");
   //     const userId = localStorage.getItem("userId");
-  
+
   //     if (!user) {
   //       throw new Error("사용자가 로그인되어 있지 않습니다. 댓글을 등록하려면 먼저 로그인하세요.");
   //     }
-  
+
   //     const response = await axios.post(
   //       `${process.env.REACT_APP_SERVER}/v1/comment/register`,
   //       {
@@ -480,12 +475,12 @@ const TalentDetail = () => {
   //         },
   //       }
   //     );
-  
+
   //     const updatedComments = await axios.get(
   //       `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
   //     );
   //     setComments(updatedComments.data);
-  
+
   //     setNewCommentContent("");
   //     setNewCommentParentId("");
   //   } catch (error) {
@@ -563,56 +558,83 @@ const TalentDetail = () => {
   // };
 
   return (
-    <section className="section blog-single">
+    <section className="section career-single">
       <div className="container">
-        <div className="row justify-center">
-          <div className="lg:col-10">
+        <div className="row lg:gx-4">
+          <div className="lg:col-8">
             <img className="rounded-xl" src="images/blog-single.png" alt="" />
           </div>
-          <div className="mt-10 max-w-[810px] lg:col-9">
-            <div className="mb-4 flex items-center justify-between">
-              <h1 className="h2">{talentData?.title}</h1>
-              {/* {user && user.id === talentData.writer && (
-                <div className="flex space-x-2">
-                  <Link to={`/notice-update/${notice.id}`}>
-                    <button className="btn btn-outline-primary btn-sm">
-                      글 수정
+          <div className="mt-10  lg:col-12">
+            <div className="mb-4 rounded-lg border-2 bg-white p-4">
+              <div className="mb-4 flex items-center justify-between">
+                <h1 className="h2">{talentData?.title}</h1>
+                {user && user.id === talentData?.writer && (
+                  <div className="flex space-x-2">
+                    <Link to={`/notice-update/${talentData.id}`}>
+                      <button className="btn btn-outline-primary btn-sm">
+                        글 수정
+                      </button>
+                    </Link>
+                    <button
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={""}
+                      // handleDeleteNotice
+                    >
+                      글 삭제
                     </button>
-                  </Link>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    onClick={handleDeleteNotice}
-                  >
-                    글 삭제
-                  </button>
-                </div>
-              )} */}
-            </div>
-            <div className="mb-5 mt-6 flex items-center space-x-2">
-              <div className="blog-author-avatar h-[58px] w-[58px] rounded-full border-2 border-primary p-0.5">
-                {talentData && talentData.avatar ? (
-                  <img
-                    src={talentData.avatar}
-                    alt="Avatar Preview"
-                    className="h-[52px] w-[55px] rounded-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src="/images/users/user.png"
-                    alt="Avatar Preview"
-                    className="h-[52px] w-[55px] rounded-full object-cover"
-                  />
+                  </div>
                 )}
               </div>
-              <div>
-                <p className="text-dark">{talentData?.writer}</p>
-                <span className="text-sm">
-                  {new Date(talentData?.regDate).toLocaleString()}
-                </span>
+              <div className="mt-6 flex items-center space-x-2">
+                <div className="blog-author-avatar h-[58px] w-[58px] rounded-full border-2 border-primary p-0.5">
+                  {talentData && talentData.avatar ? (
+                    <img
+                      src={talentData.avatar}
+                      alt="Avatar Preview"
+                      className="h-[52px] w-[55px] rounded-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src="/images/users/user.png"
+                      alt="Avatar Preview"
+                      className="h-[52px] w-[55px] rounded-full object-cover"
+                    />
+                  )}
+                </div>
+                <div>
+                  <p className="text-dark">{talentData?.writer}</p>
+                  <span className="text-sm">
+                    {new Date(talentData?.regDate).toLocaleString()}
+                  </span>
+                </div>
+                <div className="">
+                  <li class="my-1 mr-8 inline-flex items-center">
+                    <svg
+                      class="mr-1"
+                      width="16"
+                      height="20"
+                      viewBox="0 0 23 33"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M11.5007 0.970703C5.61504 0.970703 0.824219 5.75958 0.824219 11.6472C0.824219 20.1359 10.3612 31.2259 10.7669 31.6956L11.5007 32.5401L12.2345 31.6937C12.6402 31.2259 22.1772 20.1359 22.1772 11.6472C22.1772 5.75958 17.3863 0.970703 11.5007 0.970703ZM11.5007 29.5351C9.2761 26.7709 2.7654 18.1229 2.7654 11.6472C2.7654 6.83111 6.68463 2.91188 11.5007 2.91188C16.3167 2.91188 20.236 6.83111 20.236 11.6472C20.236 18.1171 13.7253 26.7709 11.5007 29.5351ZM11.5007 6.09347C8.28998 6.09347 5.67716 8.70629 5.67716 11.917C5.67716 15.1277 8.28998 17.7405 11.5007 17.7405C14.7114 17.7405 17.3242 15.1277 17.3242 11.917C17.3242 8.70629 14.7114 6.09347 11.5007 6.09347ZM11.5007 15.7993C9.35957 15.7993 7.61834 14.0581 7.61834 11.917C7.61834 9.77588 9.35957 8.03464 11.5007 8.03464C13.6418 8.03464 15.383 9.77588 15.383 11.917C15.383 14.0581 13.6418 15.7993 11.5007 15.7993Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    희망 위치 : {talentData?.placeName}
+                  </li>
+                </div>
+                <div>
+                  희망 성별 : {talentData?.gender}
+                </div>
+                <div>
+                  희망 요일 : {talentData?.gender}
+                </div>
               </div>
             </div>
 
-            <div className="content">
+            <div className="content min-h-[300px] rounded-lg border-2 bg-white p-4">
               <p>{talentData?.content}</p>
             </div>
 
@@ -645,7 +667,8 @@ const TalentDetail = () => {
               currentUserId={user?.id}
             /> */}
 
-            {/* <form className="comment-form" onSubmit={handleCommentSubmit}>
+            <form className="comment-form" onSubmit={""}>
+              {/* handleCommentSubmit */}
               <h5 className="h5 mb-4 mt-4 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
                 댓글 등록
               </h5>
@@ -653,8 +676,9 @@ const TalentDetail = () => {
                 <textarea
                   cols="30"
                   rows="10"
-                  value={newCommentContent}
-                  onChange={(e) => setNewCommentContent(e.target.value)}
+                  value={""}
+                  // newCommentContent
+                  // onChange={(e) => setNewCommentContent(e.target.value)}
                 ></textarea>
               </div>
 
@@ -663,7 +687,7 @@ const TalentDetail = () => {
                 className="btn btn-primary mt-4 min-w-[189px] cursor-pointer"
                 value="댓글 등록"
               />
-            </form> */}
+            </form>
           </div>
         </div>
       </div>
