@@ -17,6 +17,7 @@ import UpdateNoticePage from "./pages/UpdateNoticePage";
 import NoticeDetailPage from "./pages/NoticeDetailPage";
 import CreateTalentPage from "./pages/CreateTalentPage";
 import TalentDetailPage from "./pages/TalentDetailPage";
+import UpdateTalent from "./components/Talent/UpdateTalent";
 
 const App = () => {
   // 페이지 로딩 시 사용자 정보를 불러오는 액션 실행
@@ -46,6 +47,7 @@ const App = () => {
             element={<UpdateNoticePage />}
           />
           <Route path="talent-create" element={<CreateTalentPage />} />
+          <Route path="talent-update/:id" element={<UpdateTalent />} />
         </Routes>
         
         <ToastContainer

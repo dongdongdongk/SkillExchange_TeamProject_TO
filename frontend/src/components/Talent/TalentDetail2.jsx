@@ -31,7 +31,7 @@ const FloatingAssets = () => {
 // CommonHero 컴포넌트
 const CommonHero = () => {
   return (
-    <section className="page-hero py-16">
+    <section className="page-hero py-8">
       <div className="container">
         <div className="text-center">
           {/* Breadcrumb */}
@@ -75,13 +75,14 @@ const CareerSingle = ({ talentData, user }) => {
       <div className="container">
         <div className="row lg:gx-4">
           <div className="lg:col-8">
-            <div className="career-single-content mb-3 rounded-xl border-2 bg-white p-3 lg:px-12 lg:py-[30px]">
+            {/* 내용 파트 */}
+            <div className="career-single-content min-h-[400px] rounded-xl border-2  bg-white p-7 ">
               {/* 유저 파트 */}
               <div className="mb-4 flex items-center justify-between">
                 <h1 className="h3">{talentData?.title}</h1>
                 {user && user.id === talentData?.writer && (
                   <div className="flex space-x-2">
-                    <Link to={`/notice-update/${talentData.id}`}>
+                    <Link to={`/talent-update/${talentData.id}`}>
                       <button className="btn btn-outline-primary btn-sm">
                         글 수정
                       </button>
@@ -97,18 +98,18 @@ const CareerSingle = ({ talentData, user }) => {
                 )}
               </div>
               <div className="mt-6 flex items-center space-x-2">
-                <div className="blog-author-avatar h-[58px] w-[58px] rounded-full border-2 border-primary p-0.5">
+                <div className="blog-author-avatar h-[40px] w-[40px] rounded-full border-2 border-primary p-0.5">
                   {talentData && talentData.avatar ? (
                     <img
                       src={talentData.avatar}
                       alt="Avatar Preview"
-                      className="h-[52px] w-[55px] rounded-full object-cover"
+                      className="h-[34px] w-[37px] rounded-full object-cover"
                     />
                   ) : (
                     <img
                       src="/images/users/user.png"
                       alt="Avatar Preview"
-                      className="h-[52px] w-[55px] rounded-full object-cover"
+                      className="h-[34px] w-[37px] rounded-full object-cover"
                     />
                   )}
                 </div>
@@ -119,11 +120,8 @@ const CareerSingle = ({ talentData, user }) => {
                   </span>
                 </div>
               </div>
-            </div>
-
-            {/* 내용 파트 */}
-            <div className="career-single-content min-h-[300px] rounded-xl border-2  bg-white p-7 lg:px-12 lg:py-[60px]">
-              <p>{talentData?.content}</p>
+              <hr className="mt-5 mb-5"></hr>
+              <p className="mt-8">{talentData?.content}</p>
             </div>
           </div>
           {/* 사이드바 */}

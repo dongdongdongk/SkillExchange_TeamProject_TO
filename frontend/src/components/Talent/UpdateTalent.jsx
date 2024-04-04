@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { placeName } from "../../static/data";
 import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
@@ -22,20 +22,19 @@ const UpdateTalent = () => {
   const [maxAge, setMaxAge] = useState("");
   const [gender, setGender] = useState("");
   const [place, setPlace] = useState("");
+  const { id } = useParams();
+  const [checkedDays, setCheckedDays] = useState({
+    MON: false,
+    TUE: false,
+    WED: false,
+    THU: false,
+    FRI: false,
+    SAT: false,
+    SUN: false,
+  });
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
-
-  const fetchCategory = async () => {
-    try {
-      const response = await axios.get(
-        process.env.REACT_APP_SERVER + `/v1/subjectCategory/list`
-      );
-      setCategory(response.data);
-    } catch (error) {
-      console.error("카테고리 불러오기 실패", error);
-    }
-  };
 
   const handleFileChange = (e) => {
     e.preventDefault();
@@ -65,21 +64,80 @@ const UpdateTalent = () => {
   }, [user]);
 
   useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const response = await axios.get(
+          process.env.REACT_APP_SERVER + `/v1/subjectCategory/list`
+        );
+        setCategory(response.data);
+      } catch (error) {
+        console.error("카테고리 불러오기 실패", error);
+      }
+    };
+
     fetchCategory();
-    if (talentData) {
-      setTitle(talentData.title || "");
-      setContent(talentData.content || "");
-      setPlace(talentData.placeName || "");
-      setMainCategory(talentData.teachingSubject || "");
-      setSubCategory(talentData.teachedSubject || "");
-      setMyMainCategory(talentData.teachedSubject || "");
-      setMySubCategory(talentData.teachedSubject || "");
-      setSelectedDays(talentData.selectedDays || []);
-      setMinAge(talentData.minAge || "");
-      setMaxAge(talentData.maxAge || "");
-      setGender(talentData.gender || "");
-    }
-  }, [talentData]);
+  }, []);
+
+  useEffect(() => {
+    const fetchTalentData = async () => {
+      try {
+        if (id) {
+          const response = await axios.get(
+            `${process.env.REACT_APP_SERVER}/v1/talent/${id}`
+          );
+          const talentData = response.data;
+
+          setTitle(talentData.title || "");
+          setContent(talentData.content || "");
+          setPlace(talentData.placeName || "");
+          setMainCategory(talentData.teachingSubject || "");
+          setSubCategory(talentData.teachedSubject || "");
+          setMyMainCategory(talentData.teachedSubject || "");
+          setMySubCategory(talentData.teachedSubject || "");
+          setSelectedDays(talentData.selectedDays || []);
+          setMinAge(talentData.minAge || "");
+          setMaxAge(talentData.maxAge || "");
+          setGender(talentData.gender || "");
+
+          setCheckedDays({
+            MON: talentData.selectedDays.includes("MON"),
+            TUE: talentData.selectedDays.includes("TUE"),
+            WED: talentData.selectedDays.includes("WED"),
+            THU: talentData.selectedDays.includes("THU"),
+            FRI: talentData.selectedDays.includes("FRI"),
+            SAT: talentData.selectedDays.includes("SAT"),
+            SUN: talentData.selectedDays.includes("SUN"),
+          });
+        } else {
+          setTitle("");
+          setContent("");
+          setPlace("");
+          setMainCategory("");
+          setSubCategory("");
+          setMyMainCategory("");
+          setMySubCategory("");
+          setSelectedDays([]);
+          setMinAge("");
+          setMaxAge("");
+          setGender("");
+
+          setCheckedDays({
+            MON: false,
+            TUE: false,
+            WED: false,
+            THU: false,
+            FRI: false,
+            SAT: false,
+            SUN: false,
+          });
+        }
+      } catch (error) {
+        console.error("재능 데이터 불러오기 실패", error);
+      }
+    };
+
+    fetchTalentData();
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -441,13 +499,12 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("MON")}
+                            checked={checkedDays.MON}
                             onChange={(e) =>
-                              e.target.checked
-                                ? setSelectedDays([...selectedDays, "MON"])
-                                : setSelectedDays(
-                                    selectedDays.filter((day) => day !== "MON")
-                                  )
+                              setCheckedDays({
+                                ...checkedDays,
+                                MON: e.target.checked,
+                              })
                             }
                           />
                         }
@@ -456,13 +513,12 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("TUE")}
+                            checked={checkedDays.TUE}
                             onChange={(e) =>
-                              e.target.checked
-                                ? setSelectedDays([...selectedDays, "TUE"])
-                                : setSelectedDays(
-                                    selectedDays.filter((day) => day !== "TUE")
-                                  )
+                              setCheckedDays({
+                                ...checkedDays,
+                                TUE: e.target.checked,
+                              })
                             }
                           />
                         }
@@ -471,13 +527,12 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("WED")}
+                            checked={checkedDays.WED}
                             onChange={(e) =>
-                              e.target.checked
-                                ? setSelectedDays([...selectedDays, "WED"])
-                                : setSelectedDays(
-                                    selectedDays.filter((day) => day !== "WED")
-                                  )
+                              setCheckedDays({
+                                ...checkedDays,
+                                WED: e.target.checked,
+                              })
                             }
                           />
                         }
@@ -486,13 +541,12 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("THU")}
+                            checked={checkedDays.THU}
                             onChange={(e) =>
-                              e.target.checked
-                                ? setSelectedDays([...selectedDays, "THU"])
-                                : setSelectedDays(
-                                    selectedDays.filter((day) => day !== "THU")
-                                  )
+                              setCheckedDays({
+                                ...checkedDays,
+                                THU: e.target.checked,
+                              })
                             }
                           />
                         }
@@ -501,13 +555,12 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("FRI")}
+                            checked={checkedDays.FRI}
                             onChange={(e) =>
-                              e.target.checked
-                                ? setSelectedDays([...selectedDays, "FRI"])
-                                : setSelectedDays(
-                                    selectedDays.filter((day) => day !== "FRI")
-                                  )
+                              setCheckedDays({
+                                ...checkedDays,
+                                FRI: e.target.checked,
+                              })
                             }
                           />
                         }
@@ -516,13 +569,12 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("SAT")}
+                            checked={checkedDays.SAT}
                             onChange={(e) =>
-                              e.target.checked
-                                ? setSelectedDays([...selectedDays, "SAT"])
-                                : setSelectedDays(
-                                    selectedDays.filter((day) => day !== "SAT")
-                                  )
+                              setCheckedDays({
+                                ...checkedDays,
+                                SAT: e.target.checked,
+                              })
                             }
                           />
                         }
@@ -531,13 +583,12 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            defaultChecked={selectedDays.includes("SUN")}
+                            checked={checkedDays.SUN}
                             onChange={(e) =>
-                              e.target.checked
-                                ? setSelectedDays([...selectedDays, "SUN"])
-                                : setSelectedDays(
-                                    selectedDays.filter((day) => day !== "SUN")
-                                  )
+                              setCheckedDays({
+                                ...checkedDays,
+                                SUN: e.target.checked,
+                              })
                             }
                           />
                         }
