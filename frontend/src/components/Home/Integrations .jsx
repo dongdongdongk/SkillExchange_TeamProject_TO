@@ -50,7 +50,7 @@ const Integrations = () => {
     async function fetchPosts() {
       try {
         const response = await axios.get(
-          process.env.REACT_APP_SERVER + "/v1/talent/list?limit=20&skip=0"
+          process.env.REACT_APP_SERVER + "/v1/talent/list?limit=20&skip=3"
         );
         setPosts(response.data.content);
       } catch (error) {
@@ -95,61 +95,79 @@ const Integrations = () => {
                 <Link
                   key={post.id}
                   to={`/talent/${post.id}`}
-                  className="flex max-w-xl flex-col items-start justify-between shadow-lg h-full"
-                  
+                  className="flex h-full max-w-xl flex-col items-start justify-between rounded-lg border-2"
                 >
-                <article className="w-full h-full">
-                  <div className="rounded-md bg-white p-5 max-w-full h-full ">
-                    <div className="flex items-center gap-x-4 text-xs">
-                      <time dateTime={post.regDate} className="text-gray-500">
-                        {timeAgo}
-                      </time>
-                      <a
-                        href="#"
-                        className="btn-primary relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
-                      >
-                        {post.teachingSubject}
-                      </a>
-                    </div>
-                    <div className="group relative">
-                      <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600 ">
-                        <a href="#">
-                          <span className="absolute inset-0" />
-                          {post.title}
+                  <article className="h-full w-full">
+                    <div className="h-full max-w-full rounded-md bg-white p-8 ">
+                      <div className="mb-5 mt-3 flex items-center justify-center gap-x-4 text-xs">
+                        <a
+                          href="#"
+                          className="btn-primary relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
+                        >
+                          {post.teachingSubject}
                         </a>
-                      </h3>
-                      <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">
-                        {post.content}
-                      </p>
-                    </div>
-                    <div className="relative mt-8 flex items-center gap-x-4 ">
-                      {post.avatar ? (
-                        <img
-                          src={post.avatar}
-                          alt=""
-                          className="h-10 w-10 rounded-full bg-gray-50"
-                        />
-                      ) : (
-                        <img
-                          src="/images/users/user.png"
-                          alt="Default Avatar"
-                          className="h-10 w-10 rounded-full bg-gray-50"
-                        />
-                      )}
-                      <div className="text-sm leading-6">
-                        <p className="font-semibold text-gray-900">
+
+                        <a className="inline-flex items-center font-semibold text-primary">
+                          <img
+                            className="ml-1.5"
+                            src="/images/icons/arrow-right.svg"
+                          />
+                        </a>
+
+                        <a
+                          href="#"
+                          className="btn-primary relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
+                        >
+                          {post.teachedSubject}
+                        </a>
+                      </div>
+                      <div className="group relative">
+                        <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600 ">
                           <a href="#">
                             <span className="absolute inset-0" />
-                            {post.writer}
+                            {post.title}
                           </a>
-                        </p>
-                        <p className="text-gray-600">
-                          {post.placeName} {post.ageGroup}
+                        </h3>
+                        <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">
+                          {post.content}
                         </p>
                       </div>
+                      <div className="relative mt-8 flex items-center justify-between gap-x-4">
+                        {post.avatar ? (
+                          <img
+                            src={post.avatar}
+                            alt=""
+                            className="h-10 w-10 rounded-full border-2 border-primary bg-gray-50 p-0.5"
+                          />
+                        ) : (
+                          <img
+                            src="/images/users/user.png"
+                            alt="Default Avatar"
+                            className="h-10 w-10 rounded-full border-2 border-primary bg-gray-50 p-0.5"
+                          />
+                        )}
+                        <div className="text-sm leading-6 flex-grow">
+                          <p className="font-semibold text-gray-900">
+                            <a href="#">
+                              <span className="absolute inset-0" />
+                              {post.writer}
+                            </a>
+                          </p>
+                          <p className="text-gray-600">
+                            {post.placeName} {post.ageGroup}
+                          </p>
+                        </div>
+                        <div>
+                          <time
+                            dateTime={post.regDate}
+                            className="text-gray-500"
+                          >
+                            {timeAgo}
+                          </time>
+                          </div>
+                      </div>
                     </div>
-                  </div>
-                </article>
+                  </article>
                 </Link>
               );
             })}

@@ -70,6 +70,28 @@ const CommonHero = () => {
 
 // CareerSingle 컴포넌트
 const CareerSingle = ({ talentData, user }) => {
+  const navigate = useNavigate();
+  const handleDeleteTalent = async () => {
+    console.log("이거 아이디가 맞나",talentData.id)
+    try {
+
+      const accessToken = localStorage.getItem("accessToken");
+
+      await axios.delete(
+        process.env.REACT_APP_SERVER + `/v1/talent/${talentData.id}`,{
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+        );
+      toast.success("재능이 성공적으로 삭제되었습니다.");
+      navigate("/"); // 삭제 후 홈 페이지로 이동
+    } catch (error) {
+      console.error("Error deleting talent:", error);
+      toast.error("재능을 삭제하는 중에 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <section className="section career-single pt-0">
       <div className="container">
@@ -89,8 +111,7 @@ const CareerSingle = ({ talentData, user }) => {
                     </Link>
                     <button
                       className="btn btn-outline-primary btn-sm"
-                      onClick={""}
-                      // handleDeleteNotice
+                      onClick={handleDeleteTalent} // 삭제 버튼 클릭 시 handleDeleteTalent 함수 호출
                     >
                       글 삭제
                     </button>
@@ -120,7 +141,7 @@ const CareerSingle = ({ talentData, user }) => {
                   </span>
                 </div>
               </div>
-              <hr className="mt-5 mb-5"></hr>
+              <hr className="mb-5 mt-5"></hr>
               <p className="mt-8">{talentData?.content}</p>
             </div>
           </div>
@@ -208,7 +229,8 @@ const CareerSingle = ({ talentData, user }) => {
                     />
                   </svg>
                   <span>
-                  희망 성별 : {(() => {
+                    희망 성별 :{" "}
+                    {(() => {
                       switch (talentData?.gender) {
                         case "MALE":
                           return "남성";

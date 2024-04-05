@@ -90,9 +90,9 @@ const UpdateTalent = () => {
           setTitle(talentData.title || "");
           setContent(talentData.content || "");
           setPlace(talentData.placeName || "");
-          setMainCategory(talentData.teachingSubject || "");
-          setSubCategory(talentData.teachedSubject || "");
-          setMyMainCategory(talentData.teachedSubject || "");
+          setMainCategory(talentData.parentTeachingSubject || "");
+          setSubCategory(talentData.teachingSubject || "");
+          setMyMainCategory(talentData.parentTeachedSubject || "");
           setMySubCategory(talentData.teachedSubject || "");
           setSelectedDays(talentData.selectedDays || []);
           setMinAge(talentData.minAge || "");
@@ -179,8 +179,8 @@ const UpdateTalent = () => {
       );
 
       // axios를 사용하여 서버로 데이터 전송
-      const response = await axios.post(
-        process.env.REACT_APP_SERVER + `/v1/talent/register`,
+      const response = await axios.patch(
+        process.env.REACT_APP_SERVER + `/v1/talent/${id}`,
         formData,
         {
           withCredentials: true,
@@ -194,7 +194,7 @@ const UpdateTalent = () => {
       // 여기서 axios 요청을 보내지 않고, 데이터만 콘솔에 출력합니다.
       console.log(response);
       toast.success(response.data.returnMessage);
-      // navigate("/notice");
+      navigate("/");
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
@@ -224,6 +224,13 @@ const UpdateTalent = () => {
       (category) => category.name === mainCategory
     );
     return selectedMainCategory ? selectedMainCategory.children : [];
+  };
+
+  const getMySubCategories = () => {
+    const selectedMyMainCategory = Category.find(
+      (category) => category.name === myMainCategory
+    );
+    return selectedMyMainCategory ? selectedMyMainCategory.children : [];
   };
 
   return (
@@ -409,7 +416,7 @@ const UpdateTalent = () => {
                         required
                       >
                         <option value="">소분류 선택</option>
-                        {getSubCategories().map((subCategory) => (
+                        {getMySubCategories().map((subCategory) => (
                           <option key={subCategory.id} value={subCategory.name}>
                             {subCategory.name}
                           </option>
@@ -499,12 +506,15 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={checkedDays.MON}
-                            onChange={(e) =>
-                              setCheckedDays({
-                                ...checkedDays,
-                                MON: e.target.checked,
-                              })
+                            checked={selectedDays.includes("MON")}
+                            onChange={() =>
+                              setSelectedDays((prevSelectedDays) =>
+                                prevSelectedDays.includes("MON")
+                                  ? prevSelectedDays.filter(
+                                      (day) => day !== "MON"
+                                    )
+                                  : [...prevSelectedDays, "MON"]
+                              )
                             }
                           />
                         }
@@ -513,12 +523,15 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={checkedDays.TUE}
-                            onChange={(e) =>
-                              setCheckedDays({
-                                ...checkedDays,
-                                TUE: e.target.checked,
-                              })
+                            checked={selectedDays.includes("TUE")}
+                            onChange={() =>
+                              setSelectedDays((prevSelectedDays) =>
+                                prevSelectedDays.includes("TUE")
+                                  ? prevSelectedDays.filter(
+                                      (day) => day !== "TUE"
+                                    )
+                                  : [...prevSelectedDays, "TUE"]
+                              )
                             }
                           />
                         }
@@ -527,12 +540,15 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={checkedDays.WED}
-                            onChange={(e) =>
-                              setCheckedDays({
-                                ...checkedDays,
-                                WED: e.target.checked,
-                              })
+                            checked={selectedDays.includes("WED")}
+                            onChange={() =>
+                              setSelectedDays((prevSelectedDays) =>
+                                prevSelectedDays.includes("WED")
+                                  ? prevSelectedDays.filter(
+                                      (day) => day !== "WED"
+                                    )
+                                  : [...prevSelectedDays, "WED"]
+                              )
                             }
                           />
                         }
@@ -541,12 +557,15 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={checkedDays.THU}
-                            onChange={(e) =>
-                              setCheckedDays({
-                                ...checkedDays,
-                                THU: e.target.checked,
-                              })
+                            checked={selectedDays.includes("THU")}
+                            onChange={() =>
+                              setSelectedDays((prevSelectedDays) =>
+                                prevSelectedDays.includes("THU")
+                                  ? prevSelectedDays.filter(
+                                      (day) => day !== "THU"
+                                    )
+                                  : [...prevSelectedDays, "THU"]
+                              )
                             }
                           />
                         }
@@ -555,12 +574,15 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={checkedDays.FRI}
-                            onChange={(e) =>
-                              setCheckedDays({
-                                ...checkedDays,
-                                FRI: e.target.checked,
-                              })
+                            checked={selectedDays.includes("FRI")}
+                            onChange={() =>
+                              setSelectedDays((prevSelectedDays) =>
+                                prevSelectedDays.includes("FRI")
+                                  ? prevSelectedDays.filter(
+                                      (day) => day !== "FRI"
+                                    )
+                                  : [...prevSelectedDays, "FRI"]
+                              )
                             }
                           />
                         }
@@ -569,12 +591,15 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={checkedDays.SAT}
-                            onChange={(e) =>
-                              setCheckedDays({
-                                ...checkedDays,
-                                SAT: e.target.checked,
-                              })
+                            checked={selectedDays.includes("SAT")}
+                            onChange={() =>
+                              setSelectedDays((prevSelectedDays) =>
+                                prevSelectedDays.includes("SAT")
+                                  ? prevSelectedDays.filter(
+                                      (day) => day !== "SAT"
+                                    )
+                                  : [...prevSelectedDays, "SAT"]
+                              )
                             }
                           />
                         }
@@ -583,12 +608,15 @@ const UpdateTalent = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={checkedDays.SUN}
-                            onChange={(e) =>
-                              setCheckedDays({
-                                ...checkedDays,
-                                SUN: e.target.checked,
-                              })
+                            checked={selectedDays.includes("SUN")}
+                            onChange={() =>
+                              setSelectedDays((prevSelectedDays) =>
+                                prevSelectedDays.includes("SUN")
+                                  ? prevSelectedDays.filter(
+                                      (day) => day !== "SUN"
+                                    )
+                                  : [...prevSelectedDays, "SUN"]
+                              )
                             }
                           />
                         }
