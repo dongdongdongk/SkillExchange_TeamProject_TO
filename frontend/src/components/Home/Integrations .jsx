@@ -45,21 +45,34 @@ const IntegrationBox = ({ imageSrc, title, category, description }) => {
 
 const Integrations = () => {
   const [posts, setPosts] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(9);
 
   useEffect(() => {
     async function fetchPosts() {
       try {
         const response = await axios.get(
-          process.env.REACT_APP_SERVER + "/v1/talent/list?limit=20&skip=3"
+          `${process.env.REACT_APP_SERVER}/v1/talent/list?limit=${limit}&skip=${(currentPage - 1)}`
         );
         setPosts(response.data.content);
+        setTotalCount(response.data.totalElements);
       } catch (error) {
         console.error("포스트를 불러오는 동안 오류가 발생했습니다:", error);
       }
     }
 
     fetchPosts();
-  }, []);
+  }, [currentPage, limit]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    const newSkip = (page - 1) * limit;
+    setSkip(newSkip);
+  };
+
+  const totalPages = Math.ceil(totalCount / limit);
 
   return (
     <>
@@ -173,6 +186,65 @@ const Integrations = () => {
             })}
           </div>
         </div>
+      </div>
+      <div className="mt-8 flex justify-center">
+        <nav
+          className="relative z-0 inline-flex rounded-md shadow-sm"
+          aria-label="Pagination"
+        >
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="relative inline-flex items-center rounded-l-md px-2 py-2 text-red-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+          >
+            <span className="sr-only">Previous</span>
+            <svg
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => handlePageChange(i + 1)}
+              aria-current="page"
+              className={`${
+                currentPage === i + 1
+                  ? "z-10 bg-red-50 text-gray-600 "
+                  : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-red-50"
+              } relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-red-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+          >
+            <span className="sr-only">Next</span>
+            <svg
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </nav>
       </div>
     </>
   );
