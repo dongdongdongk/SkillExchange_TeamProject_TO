@@ -1,47 +1,92 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const IntegrationBox = ({ imageSrc, title, category, description }) => {
+
+
+const CategorySelect = ({ fetchPostsWithCategory }) => {
+  const [mainCategories, setMainCategories] = useState([]);
+  const [selectedMainCategory, setSelectedMainCategory] = useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const categoryRef = useRef(null);
+
+  const fetchCategory = async () => {
+    try {
+      const response = await axios.get(
+        process.env.REACT_APP_SERVER + `/v1/subjectCategory/list`
+      );
+      setMainCategories(response.data);
+    } catch (error) {
+      console.error("카테고리 불러오기 실패", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
+  const handleMainCategoryClick = (category) => {
+    setSelectedMainCategory(
+      selectedMainCategory === category ? null : category
+    );
+  };
+
+  const handleSubCategoryClick = (subCategory) => {
+    setSelectedSubCategory(subCategory);
+    fetchPostsWithCategory(subCategory.id);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryRef.current && !categoryRef.current.contains(event.target)) {
+        setSelectedMainCategory(null);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside, true);
+    return () => {
+      document.removeEventListener("click", handleClickOutside, true);
+    };
+  }, []);
+
   return (
-    <div
-      className="integration-tab-item mb-8 md:col-6 lg:col-3"
-      data-groups={`["${category}"]`}
-    >
-      <div className="max-h-[350px] min-h-[350px] rounded-xl bg-white px-10 pb-8 pt-11 shadow-lg">
-        <div className="integration-card-head flex items-center space-x-4">
-          <img src={imageSrc} alt="" />
-          <div>
-            <h4 className="h5">{title}</h4>
-            <span className="font-medium">카테고리 : {category}</span>
-          </div>
-        </div>
-        <div className="my-5 border-y border-border py-5">
-          <p>{description}</p>
-        </div>
-        <a
-          className="inline-flex items-center font-semibold text-dark"
-          href="#"
-        >
-          글 상세보기
-          <svg
-            className="ml-1.5"
-            width="13"
-            height="16"
-            viewBox="0 0 13 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+    <div ref={categoryRef}>
+      <div className="flex justify-center">
+        {mainCategories.map((category) => (
+          <div
+            key={category.id}
+            className="relative mx-5 cursor-pointer"
+            onClick={() => handleMainCategoryClick(category)}
           >
-            <path
-              d="M12.7071 8.70711C13.0976 8.31658 13.0976 7.68342 12.7071 7.29289L6.34315 0.928932C5.95262 0.538408 5.31946 0.538408 4.92893 0.928932C4.53841 1.31946 4.53841 1.95262 4.92893 2.34315L10.5858 8L4.92893 13.6569C4.53841 14.0474 4.53841 14.6805 4.92893 15.0711C5.31946 15.4616 5.95262 15.4616 6.34315 15.0711L12.7071 8.70711ZM0 9H12V7H0V9Z"
-              fill="currentColor"
-            />
-          </svg>
-        </a>
+            <img src={`/icons/${category.name}.png`} alt={category.name} />
+            {selectedMainCategory === category && (
+              <div className="absolute top-full left-0 z-10 mt-2 w-64 rounded-md bg-white shadow-lg">
+                <ul className="grid grid-cols-2 gap-2">
+                  {category.children.map((subCategory) => (
+                    <li
+                      key={subCategory.id}
+                      className="px-4 py-2 hover:bg-gray-100"
+                      onClick={() => handleSubCategoryClick(subCategory)}
+                    >
+                      {subCategory.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
+      {selectedSubCategory && (
+        <div className="mt-4 text-center">
+          선택한 하위 카테고리: {selectedSubCategory.name}
+        </div>
+      )}
     </div>
   );
 };
+
+
 
 const Integrations = () => {
   const [posts, setPosts] = useState([]);
@@ -50,19 +95,32 @@ const Integrations = () => {
   const [skip, setSkip] = useState(0);
   const [limit, setLimit] = useState(9);
 
-  useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_SERVER}/v1/talent/list?limit=${limit}&skip=${(currentPage - 1)}`
-        );
-        setPosts(response.data.content);
-        setTotalCount(response.data.totalElements);
-      } catch (error) {
-        console.error("포스트를 불러오는 동안 오류가 발생했습니다:", error);
-      }
+  
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_SERVER}/v1/talent/list?limit=${limit}&skip=${skip}`
+      );
+      setPosts(response.data.content);
+      setTotalCount(response.data.totalElements);
+    } catch (error) {
+      console.error("포스트를 불러오는 동안 오류가 발생했습니다:", error);
     }
+  };
 
+  const fetchPostsWithCategory = async (categoryId) => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_SERVER}/v1/talent/list?limit=${limit}&skip=${skip}&subjectCategoryId=${categoryId}`
+      );
+      setPosts(response.data.content);
+      setTotalCount(response.data.totalElements);
+    } catch (error) {
+      console.error("포스트를 불러오는 동안 오류가 발생했습니다:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchPosts();
   }, [currentPage, limit]);
 
@@ -76,6 +134,7 @@ const Integrations = () => {
 
   return (
     <>
+      <CategorySelect fetchPostsWithCategory={fetchPostsWithCategory}/>
       <div className="">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16  border-gray-200  lg:mx-0 lg:max-w-none lg:grid-cols-3">
@@ -105,6 +164,7 @@ const Integrations = () => {
               }
 
               return (
+                
                 <Link
                   key={post.id}
                   to={`/talent/${post.id}`}
@@ -115,7 +175,7 @@ const Integrations = () => {
                       <div className="mb-5 mt-3 flex items-center justify-center gap-x-4 text-xs">
                         <a
                           href="#"
-                          className="btn-primary relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
+                          className="btn-primary  rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
                         >
                           {post.teachingSubject}
                         </a>
@@ -129,7 +189,7 @@ const Integrations = () => {
 
                         <a
                           href="#"
-                          className="btn-primary relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
+                          className="btn-primary  rounded-full bg-gray-50 px-3 py-1.5 font-medium text-white hover:bg-gray-100"
                         >
                           {post.teachedSubject}
                         </a>

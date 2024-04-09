@@ -307,8 +307,8 @@ const UserProfile = () => {
                         required
                       >
                         <option value="">성별을 입력해주세요</option>
-                        <option value="남">남</option>
-                        <option value="여">여</option>
+                        <option value="MALE">남</option>
+                        <option value="FEMALE">여</option>
                       </select>
                     </div>
                     {/* 자기소개 */}
