@@ -1,19 +1,32 @@
 import React from "react";
-import {  useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { clearUser } from "../../redux/user/userAction";
+import axios from "axios";
 
 const Header = () => {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.user);
 
-  const handleLogout = () => {
-    // 로그아웃 버튼 클릭 시 실행되는 로직
-    // 여기에서 로컬 스토리지의 accessToken을 지우고 Redux state를 초기화하는 작업을 수행
-    localStorage.removeItem("accessToken");
-    dispatch(clearUser()); // Redux action을 사용하여 사용자 정보 초기화
-    // 페이지 리로드
-    window.location.replace('/');
+  const handleLogout = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      localStorage.removeItem("accessToken");
+      dispatch(clearUser()); // Redux action을 사용하여 사용자 정보 초기화
+      const response = await axios.patch(
+        `${process.env.REACT_APP_SERVER}/v1/user/logout`,
+        {},
+        {
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+      console.log("Logout successful:", response.data);
+
+      // 페이지 리로드
+      window.location.replace("/");
+    } catch (error) {}
   };
 
   return (
@@ -98,16 +111,19 @@ const Header = () => {
         <div className="order-1 ml-auto hidden items-center md:order-2 md:ml-0 lg:flex">
           {isAuthenticated ? (
             <>
-              <Link to="/profile" className="btn btn-primary btn-sm mr-5 font-bold">
+              <Link
+                to="/profile"
+                className="btn btn-primary btn-sm mr-5 font-bold"
+              >
                 마이페이지
               </Link>
-            
+
               <button
-              className="btn btn-primary btn-sm font-bold"
-              onClick={handleLogout} // 로그아웃 클릭 시 handleLogout 함수 실행
-            >
-              로그아웃
-            </button>
+                className="btn btn-primary btn-sm font-bold"
+                onClick={handleLogout} // 로그아웃 클릭 시 handleLogout 함수 실행
+              >
+                로그아웃
+              </button>
             </>
           ) : (
             <Link to="/sign-in" className="btn btn-primary btn-sm font-bold">

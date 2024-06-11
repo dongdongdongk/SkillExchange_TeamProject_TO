@@ -150,8 +150,20 @@ const NoticeDetailComponent = () => {
     const fetchData = async () => {
       try {
         const [noticeResponse, commentsResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_SERVER}/v1/notices/${noticeId}`),
-          axios.get(`${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`),
+          axios.get(`${process.env.REACT_APP_SERVER}/v1/notices/${noticeId}`, // 데이터는 비어있는 객체로 전달
+          {
+            withCredentials: true,
+            // headers: {
+            //   Authorization: accessToken,
+            // },
+          }),
+          axios.get(`${process.env.REACT_APP_SERVER}/v1/comment/notice/${noticeId}`, // 데이터는 비어있는 객체로 전달
+          {
+            withCredentials: true,
+            // headers: {
+            //   Authorization: accessToken,
+            // },
+          }),
         ]);
 
         setNotice(noticeResponse.data);
@@ -202,9 +214,9 @@ const NoticeDetailComponent = () => {
       }
   
       const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/v1/comment/register`,
+        `${process.env.REACT_APP_SERVER}/v1/comment/notice/register`,
         {
-          noticeId,
+          boardId : noticeId,
           parentId: newCommentParentId,
           writer: user.id,
           content: newCommentContent,
@@ -219,7 +231,7 @@ const NoticeDetailComponent = () => {
       );
   
       const updatedComments = await axios.get(
-        `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
+        `${process.env.REACT_APP_SERVER}/v1/comment/notice/${noticeId}`
       );
       setComments(updatedComments.data);
   
@@ -247,9 +259,9 @@ const NoticeDetailComponent = () => {
       const accessToken = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/v1/comment/register`,
+        `${process.env.REACT_APP_SERVER}/v1/comment/notice/register`,
         {
-          noticeId,
+          boardId : noticeId,
           parentId,
           writer: user.id,
           content: replyContent,
@@ -263,7 +275,7 @@ const NoticeDetailComponent = () => {
       );
 
       const updatedComments = await axios.get(
-        `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
+        `${process.env.REACT_APP_SERVER}/v1/comment/notice/${noticeId}`
       );
       setComments(updatedComments.data);
 
@@ -290,7 +302,7 @@ const NoticeDetailComponent = () => {
       toast.success(response.data.returnMessage);
 
       const updatedComments = await axios.get(
-        `${process.env.REACT_APP_SERVER}/v1/comment/${noticeId}`
+        `${process.env.REACT_APP_SERVER}/v1/comment/notice/${noticeId}`
       );
       setComments(updatedComments.data);
     } catch (error) {

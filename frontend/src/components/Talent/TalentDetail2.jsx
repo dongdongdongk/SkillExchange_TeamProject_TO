@@ -71,24 +71,48 @@ const CommonHero = () => {
 // CareerSingle 컴포넌트
 const CareerSingle = ({ talentData, user }) => {
   const navigate = useNavigate();
+  const [isScraped, setIsScraped] = useState();
   const handleDeleteTalent = async () => {
-    console.log("이거 아이디가 맞나",talentData.id)
+    console.log("이거 아이디가 맞나", talentData.id);
     try {
-
       const accessToken = localStorage.getItem("accessToken");
 
       await axios.delete(
-        process.env.REACT_APP_SERVER + `/v1/talent/${talentData.id}`,{
+        process.env.REACT_APP_SERVER + `/v1/talent/${talentData.id}`,
+        {
           headers: {
             Authorization: accessToken,
           },
         }
-        );
+      );
       toast.success("재능이 성공적으로 삭제되었습니다.");
       navigate("/"); // 삭제 후 홈 페이지로 이동
     } catch (error) {
       console.error("Error deleting talent:", error);
       toast.error("재능을 삭제하는 중에 오류가 발생했습니다.");
+    }
+  };
+
+  const handleScrap = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/v1/talent/scrap/${talentData.id}`,
+        {}, // 데이터는 비어있는 객체로 전달
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+
+      toast.success(response.data.returnMessage);
+      setIsScraped(true); // 스크랩 상태를 업데이트하여 표시
+    } catch (error) {
+      console.error("Error scraping talent:", error);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -280,6 +304,13 @@ const CareerSingle = ({ talentData, user }) => {
               <a className="btn btn-primary mt-6 block w-full" href="#">
                 쪽지 보내기
               </a>
+              <a
+                className="btn btn-primary mt-6 block w-full"
+                href="#"
+                onClick={handleScrap}
+              >
+                스크랩
+              </a>
             </div>
             {/* Sr. React Native Developer 섹션 */}
 
@@ -306,7 +337,7 @@ const TalentDetail2 = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        process.env.REACT_APP_SERVER + `/v1/talent/${id}`
+        process.env.REACT_APP_SERVER + `/v1/talent/${id}`,
       );
       setTalentData(response.data);
     } catch (error) {

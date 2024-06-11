@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import PasswordModal from "./PasswordModal";
+import { Link } from "react-router-dom";
 
 const UserProfile = () => {
   const [job, setJob] = useState("");
@@ -14,7 +15,16 @@ const UserProfile = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [scrapList, setScrapList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const { user } = useSelector((state) => state.user);
+
+  const handleScrapItemClick = (scrapItem) => {
+    // 이 부분에서 클릭된 스크랩 아이템을 보여주는 페이지로 이동하도록 구현할 수 있습니다.
+    // 예를 들어, history.push 를 사용하여 페이지를 이동하거나, 링크로 연결할 수 있습니다.
+    console.log("Clicked scrap item:", scrapItem);
+  };
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -55,6 +65,33 @@ const UserProfile = () => {
       setAvatar(user.imgUrl || "");
     }
   }, [user]);
+
+  useEffect(() => {
+    fetchScrapList();
+  }, []);
+
+  const fetchScrapList = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+
+      const response = await axios.get(
+        `${process.env.REACT_APP_SERVER}/v1/user/scrap`,
+        {
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setScrapList(response.data);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching scrap list:", error);
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -226,12 +263,48 @@ const UserProfile = () => {
               <div className="row">
                 <div className="mb-10 text-center md:col-6 md:order-2 md:mb-0 md:pt-9">
                   <div className="contact-img relative inline-flex pb-5 pl-5">
-                    <img src="images/contact-img.png" alt="" />
-                    <img
-                      className="absolute bottom-0 left-0 -z-[1] h-14 w-14"
-                      src="images/shape-2.svg"
-                      alt=""
-                    />
+                    {/* <h2 className="mb-5 text-xl">스크랩한 게시물 목록</h2> */}
+                    {loading ? (
+                      <p>Loading...</p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full table-auto border-collapse overflow-hidden rounded-lg border-gray-200 bg-white shadow-md">
+                          <thead className="border-b bg-gray-100">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                스크랩 목록
+                              </th>
+                              {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                작성자
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                작성일
+                              </th> */}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {scrapList.map((scrapItem) => (
+                              <Link
+                                key={scrapItem.id}
+                                to={`/talent/${scrapItem.id}`} // 클릭 시 이동할 경로 설정
+                              >
+                                <tr className="cursor-pointer hover:bg-gray-50">
+                                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                                    {scrapItem.title}
+                                  </td>
+                                  {/* <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    {scrapItem.author}
+                                  </td>
+                                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    {scrapItem.createdAt}
+                                  </td> */}
+                                </tr>
+                              </Link>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="md:col-6 md:order-1">
