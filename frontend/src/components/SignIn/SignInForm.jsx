@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Lottie from "lottie-react";
 import axios from "axios";
 import LOGIN from "../../lottie/Login.json";
-import KakaoLogin from "../Auth/KakaoLogin";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -13,7 +12,7 @@ const SignInForm = () => {
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
   const redirect_uriKakao = process.env.REACT_APP_SERVER + "/oauth2/authorization/kakao";
-  const redirect_uriGoogle = process.env.REACT_APP_SERVER + "/oauth2/authorization/kakao";
+  const redirect_uriGoogle = process.env.REACT_APP_SERVER + "/oauth2/authorization/google";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +54,7 @@ const SignInForm = () => {
                 </a>
                 <a
                   className="btn btn-outline-white block w-full text-dark mt-3"
-                  href={redirect_uri} 
+                  href={redirect_uriGoogle} 
                 >
                   Sign In With Google
                 </a>

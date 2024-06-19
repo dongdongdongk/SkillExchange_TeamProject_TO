@@ -18,7 +18,7 @@ import NoticeDetailPage from "./pages/NoticeDetailPage";
 import CreateTalentPage from "./pages/CreateTalentPage";
 import TalentDetailPage from "./pages/TalentDetailPage";
 import UpdateTalent from "./components/Talent/UpdateTalent";
-import KakaoLoginRedirect from "./components/Auth/KakaoLoginRedirect";
+import KakaoLoginRedirect from "./components/Auth/KakaoLoginRedirect copy";
 
 const App = () => {
   // 페이지 로딩 시 사용자 정보를 불러오는 액션 실행
