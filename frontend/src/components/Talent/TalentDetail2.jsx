@@ -116,6 +116,34 @@ const CareerSingle = ({ talentData, user }) => {
     }
   };
 
+  const handleMessageSend = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/v1/chatRoom/personal`,
+        {
+          roomMakerId: user.id,
+          guestId: talentData.writer,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+
+      const { chatRoomId } = response.data;
+      toast.success("채팅방이 생성되었습니다.");
+      navigate(`/chat/${chatRoomId}`, {
+        state: { roomMakerId: user.id, guestId: talentData.writer },
+      });
+    } catch (error) {
+      console.error("Error creating chat room:", error);
+      toast.error("채팅방 생성 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <section className="section career-single pt-0">
       <div className="container">
@@ -301,8 +329,10 @@ const CareerSingle = ({ talentData, user }) => {
                   </a>
                 </div> */}
               </div>
-              <a className="btn btn-primary mt-6 block w-full" href="#">
-                쪽지 보내기
+              <a className="btn btn-primary mt-6 block w-full" 
+                  onClick={handleMessageSend}
+                  href="#">
+                메세지 보내기
               </a>
               <a
                 className="btn btn-primary mt-6 block w-full"
@@ -337,7 +367,7 @@ const TalentDetail2 = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        process.env.REACT_APP_SERVER + `/v1/talent/${id}`,
+        process.env.REACT_APP_SERVER + `/v1/talent/${id}`
       );
       setTalentData(response.data);
     } catch (error) {

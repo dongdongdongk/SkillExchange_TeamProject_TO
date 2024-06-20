@@ -19,6 +19,7 @@ import CreateTalentPage from "./pages/CreateTalentPage";
 import TalentDetailPage from "./pages/TalentDetailPage";
 import UpdateTalent from "./components/Talent/UpdateTalent";
 import KakaoLoginRedirect from "./components/Auth/KakaoLoginRedirect copy";
+import ChatRoomPage from "./pages/ChatPage";
 
 const App = () => {
   // 페이지 로딩 시 사용자 정보를 불러오는 액션 실행
@@ -50,6 +51,8 @@ const App = () => {
           <Route path="talent-create" element={<CreateTalentPage />} />
           <Route path="talent-update/:id" element={<UpdateTalent />} />
           <Route path="oauth2/redirect" element={<KakaoLoginRedirect />} />
+          {/* New Route for ChatRoomPage */}
+          <Route path="chat/:roomId" element={<ChatRoomPage />} />
         </Routes>
         
         <ToastContainer
