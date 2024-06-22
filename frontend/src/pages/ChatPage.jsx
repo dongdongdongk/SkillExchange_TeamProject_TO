@@ -9,6 +9,8 @@ function ChatRoomPage() {
   const [message, setMessage] = useState(""); // 메시지 입력 상태
   const stompClient = useRef(null); // STOMP 클라이언트를 위한 ref. 웹소켓 연결을 유지하기 위해 사용
   const currentUser = useSelector((state) => state.user); // Redux store에서 현재 사용자 정보 가져오기
+  const { user } = useSelector((state) => state.user);
+
   const messagesEndRef = useRef(null); // 채팅 메시지 목록의 끝을 참조하는 ref. 새 메시지가 추가될 때 스크롤을 이동하기 위해 사용
 
   useEffect(() => {
@@ -61,36 +63,60 @@ function ChatRoomPage() {
     if (stompClient.current && message) {
       const messageObj = {
         roomId: roomId,
-        authorId: currentUser.userId, // 현재 사용자의 ID를 사용합니다.
+        authorId: user.id, // 현재 사용자의 ID를 사용합니다.
         message: message,
-      };
+        };
+      console.log(user.id)
       stompClient.current.send(`/pub/message`, {}, JSON.stringify(messageObj));
       setMessage(""); // 입력 필드 초기화
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   return (
-    <div className="chatAppContainer">
-      {/* 채팅 메시지 출력 부분 */}
-      <div className="chatMessagesContainer">
+    <div className="flex flex-col h-screen bg-gray-100">
+      <div className="bg-indigo-600 text-white p-4 shadow-md">
+        <h2 className="text-xl font-semibold">Chat Room: {roomId}</h2>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, index) => (
-          <div key={index} className="message">
-            <p>{msg.message}</p>
-            <span>{msg.sender}</span>
+          <div key={index} className={`flex ${msg.authorId === user.id ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+              msg.authorId === user.id ? 'bg-indigo-500 text-white' : 'bg-white'
+            }`}>
+              <p className="text-sm">{msg.message}</p>
+              <span className="text-xs text-gray-500 mt-1 block">{msg.sender}</span>
+            </div>
           </div>
         ))}
         <div ref={messagesEndRef}></div>
       </div>
-
-      {/* 메시지 입력 부분 */}
-      <div className="chatInputContainer">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="메시지를 입력하세요..."
-        />
-        <button onClick={sendMessage}>전송</button>
+      <div className="bg-white border-t border-gray-200 px-4 py-4 sm:px-6">
+        <div className="flex space-x-3">
+          <button className="text-gray-400 hover:text-gray-600">
+            😊
+          </button>
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
+            className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-md sm:text-sm border-gray-300"
+            placeholder="메시지를 입력하세요..."
+          />
+          <button
+            onClick={sendMessage}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            전송
+          </button>
+        </div>
       </div>
     </div>
   );
