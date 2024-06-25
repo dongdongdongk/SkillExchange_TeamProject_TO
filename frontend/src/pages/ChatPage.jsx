@@ -35,7 +35,7 @@ function ChatRoomPage() {
     const socket = new WebSocket(process.env.REACT_APP_SERVER + "/chat/inbox");
     stompClient.current = Stomp.over(socket);
     stompClient.current.connect({}, () => {
-      stompClient.current.subscribe(`/sub/channel/${roomId}`, (message) => {
+      stompClient.current.subscribe(`/exchange/chat.exchange/room.${roomId}`, (message) => {
         const newMessage = JSON.parse(message.body);
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       });
@@ -102,7 +102,7 @@ function ChatRoomPage() {
         authorId: user.id,
         message: message,
       };
-      stompClient.current.send(`/pub/message`, {}, JSON.stringify(messageObj));
+      stompClient.current.send(`/pub/chat.message`, {}, JSON.stringify(messageObj));
       setMessage("");
     }
   };
