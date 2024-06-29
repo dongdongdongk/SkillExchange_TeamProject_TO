@@ -70,6 +70,37 @@ const UserProfile = () => {
     fetchScrapList();
   }, []);
 
+  const handleWithdraw = async () => {
+    const isConfirmed = window.confirm(
+      "정말로 탈퇴하시겠습니까? 이 작업은 취소할 수 없습니다."
+    );
+
+    if (isConfirmed) {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+
+        const response = await axios.delete(
+          `${process.env.REACT_APP_SERVER}/v1/user/withdraw`,
+          {
+            headers: {
+              Authorization: accessToken,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          toast.success("회원 탈퇴가 완료되었습니다.");
+          // 로그아웃 처리 및 홈페이지로 리다이렉트
+          localStorage.removeItem("accessToken");
+          window.location.href = "/";
+        }
+      } catch (error) {
+        console.error("회원 탈퇴 중 오류 발생:", error);
+        toast.error("회원 탈퇴 중 오류가 발생했습니다. 다시 시도해주세요.");
+      }
+    }
+  };
+
   const fetchScrapList = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -235,7 +266,7 @@ const UserProfile = () => {
 
           <div className="mt-12 border-b pb-12 text-center">
             <div className="col-6 justify-center">
-              <HomePage />
+              <HomePage onWithdraw={handleWithdraw} />
             </div>
           </div>
 
@@ -423,7 +454,7 @@ const ContactPage = () => {
   return <></>;
 };
 
-const HomePage = () => {
+const HomePage = ({ onWithdraw }) => {
   return (
     <div>
       <div className="grid grid-cols-3 gap-5">
@@ -461,7 +492,10 @@ const HomePage = () => {
           </svg>
           회원 정보
         </button>
-        <button className="btn btn-outline-primary flex items-center justify-center rounded p-4 text-red-500 shadow-md">
+        <button
+          className="btn btn-outline-primary flex items-center justify-center rounded p-4 text-red-500 shadow-md"
+          onClick={onWithdraw}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="mr-2 h-6 w-6"
@@ -476,7 +510,7 @@ const HomePage = () => {
               d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
             />
           </svg>
-          채팅 or 쪽지
+          회원 탈퇴
         </button>
       </div>
     </div>
