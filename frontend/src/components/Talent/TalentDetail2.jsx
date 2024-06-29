@@ -69,7 +69,20 @@ const CommonHero = () => {
 };
 
 // CareerSingle 컴포넌트
-const CareerSingle = ({ talentData, user }) => {
+const CareerSingle = ({
+  talentData,
+  user,
+  comments,
+  setComments,
+  newCommentContent,
+  setNewCommentContent,
+  showReplyInput,
+  setShowReplyInput,
+  replyContent,
+  setReplyContent,
+  selectedCommentId,
+  setSelectedCommentId,
+}) => {
   const navigate = useNavigate();
   const [isScraped, setIsScraped] = useState();
   const handleDeleteTalent = async () => {
@@ -144,6 +157,100 @@ const CareerSingle = ({ talentData, user }) => {
     }
   };
 
+  
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/v1/comment/talent/register`,
+        {
+          boardId: talentData.id,
+          parentId: "",
+          writer: user.id,
+          content: newCommentContent,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+      const updatedComments = await axios.get(
+        `${process.env.REACT_APP_SERVER}/v1/comment/talent/${talentData.id}`
+      );
+      setComments(updatedComments.data);
+      setNewCommentContent("");
+    } catch (error) {
+      toast.error("댓글을 등록하는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleReplyClick = (commentId) => {
+    setSelectedCommentId(commentId);
+    setShowReplyInput(true);
+    setReplyContent("");
+  };
+
+  const handleCancelReply = () => {
+    setSelectedCommentId(null);
+    setShowReplyInput(false);
+    setReplyContent("");
+  };
+
+  const handleReplySubmit = async (parentId) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      await axios.post(
+        `${process.env.REACT_APP_SERVER}/v1/comment/talent/register`,
+        {
+          boardId: talentData.id,
+          parentId,
+          writer: user.id,
+          content: replyContent,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+      const updatedComments = await axios.get(
+        `${process.env.REACT_APP_SERVER}/v1/comment/talent/${talentData.id}`
+      );
+      setComments(updatedComments.data);
+      setShowReplyInput(false);
+      setReplyContent("");
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      toast.error("답글을 등록하는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      await axios.delete(
+        `${process.env.REACT_APP_SERVER}/v1/comment/${commentId}`,
+        {
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+      toast.success("댓글이 삭제되었습니다.");
+      const updatedComments = await axios.get(
+        `${process.env.REACT_APP_SERVER}/v1/comment/talent/${talentData.id}`
+      );
+      setComments(updatedComments.data);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      toast.error("댓글 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <section className="section career-single pt-0">
       <div className="container">
@@ -195,6 +302,61 @@ const CareerSingle = ({ talentData, user }) => {
               </div>
               <hr className="mb-5 mt-5"></hr>
               <p className="mt-8">{talentData?.content}</p>
+              {/* 이미지 표시 */}
+              <div className="mt-4 flex w-full flex-wrap items-center">
+                {talentData?.imgUrl &&
+                  talentData.imgUrl.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Talent Image ${index + 1}`}
+                      className="m-2 h-[120px] w-[120px] object-cover"
+                    />
+                  ))}
+              </div>
+              {/* 댓글 섹션 */}
+              <div className="mt-8">
+                <h3 className="h5 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
+                  댓글
+                </h3>
+
+                <CommentList
+                  comments={comments}
+                  onReplyClick={handleReplyClick}
+                  selectedCommentId={selectedCommentId}
+                  showReplyInput={showReplyInput}
+                  replyContent={replyContent}
+                  setReplyContent={setReplyContent}
+                  handleCancelReply={handleCancelReply}
+                  handleReplySubmit={handleReplySubmit}
+                  onDeleteComment={handleDeleteComment}
+                  currentUserId={user?.id}
+                />
+
+                <form
+                  className="comment-form mt-4"
+                  onSubmit={handleCommentSubmit}
+                >
+                  <h5 className="h5 mb-4 inline-block border-b-[3px] border-primary font-primary font-medium leading-8">
+                    댓글 등록
+                  </h5>
+                  <div className="form-group">
+                    <textarea
+                      cols="30"
+                      rows="5"
+                      value={newCommentContent}
+                      onChange={(e) => setNewCommentContent(e.target.value)}
+                      placeholder="댓글을 입력하세요..."
+                      className="w-full border p-2"
+                    ></textarea>
+                  </div>
+                  <input
+                    type="submit"
+                    className="btn btn-primary mt-4 min-w-[189px] cursor-pointer"
+                    value="댓글 등록"
+                  />
+                </form>
+              </div>
             </div>
           </div>
           {/* 사이드바 */}
@@ -329,9 +491,11 @@ const CareerSingle = ({ talentData, user }) => {
                   </a>
                 </div> */}
               </div>
-              <a className="btn btn-primary mt-6 block w-full" 
-                  onClick={handleMessageSend}
-                  href="#">
+              <a
+                className="btn btn-primary mt-6 block w-full"
+                onClick={handleMessageSend}
+                href="#"
+              >
                 메세지 보내기
               </a>
               <a
@@ -352,16 +516,150 @@ const CareerSingle = ({ talentData, user }) => {
   );
 };
 
+const Comment = ({ comment, onReplyClick, onDeleteComment, currentUserId }) => {
+  const isCurrentUserComment = currentUserId === comment.userId;
+  const { user } = useSelector((state) => state.user);
+  return (
+    <div className="comment flex space-x-4 border-b border-border py-8">
+      <Avatar imgUrl={comment.imgUrl} />
+      <div>
+        <h4 className="font-primary text-lg font-medium capitalize">
+          {comment.userId}
+        </h4>
+        <p className="mt-2.5">
+          {new Date(comment.regDate).toLocaleString()}
+          {user && ( // Check if user is logged in
+            <React.Fragment>
+              <button
+                className="ml-4 text-primary"
+                onClick={() => onReplyClick(comment.id)}
+              >
+                Reply
+              </button>
+              {isCurrentUserComment && (
+                <button
+                  className="ml-4 text-red-500"
+                  onClick={() => onDeleteComment(comment.id)}
+                >
+                  Delete
+                </button>
+              )}
+            </React.Fragment>
+          )}
+        </p>
+        <p className="mt-5">{comment.content}</p>
+      </div>
+    </div>
+  );
+};
+
+const Avatar = ({ imgUrl }) => (
+  <img
+    src={imgUrl || "/images/users/user.png"}
+    alt="Avatar Preview"
+    className="h-[52px] w-[55px] rounded-full"
+  />
+);
+
+const ReplyForm = ({
+  replyContent,
+  setReplyContent,
+  handleCancelReply,
+  handleReplySubmit,
+  parentId,
+}) => (
+  <>
+    <div>
+      <textarea
+        cols="30"
+        rows="3"
+        value={replyContent}
+        onChange={(e) => setReplyContent(e.target.value)}
+        placeholder="답글을 입력하세요..."
+      />
+    </div>
+    <button className="ml-2 mr-2" onClick={() => handleReplySubmit(parentId)}>
+      작성
+    </button>
+    <button onClick={handleCancelReply}>취소</button>
+  </>
+);
+
+const CommentList = ({
+  comments,
+  onReplyClick,
+  selectedCommentId,
+  showReplyInput,
+  replyContent,
+  setReplyContent,
+  handleCancelReply,
+  handleReplySubmit,
+  onDeleteComment,
+  currentUserId,
+  level = 0,
+}) => (
+  <div className={`comments bg-white rounded-lg`} style={{ marginLeft: `${level * 15}px` }}>
+    {comments.map((comment) => (
+      <div key={comment.id} className={`comment-level-${level} mt-4`}>
+        <div className="comment-container flex items-center">
+          <img
+            src="../images/icons/replay-arrow.svg"
+            alt="commentArrow"
+            className="comment-arrow mr-3"
+          />
+          <Comment
+            comment={comment}
+            onReplyClick={onReplyClick}
+            onDeleteComment={onDeleteComment}
+            currentUserId={currentUserId}
+          />
+        </div>
+        <div className="ml-12 mt-2">
+          {selectedCommentId === comment.id && showReplyInput && (
+            <ReplyForm
+              replyContent={replyContent}
+              setReplyContent={setReplyContent}
+              handleCancelReply={handleCancelReply}
+              handleReplySubmit={handleReplySubmit}
+              parentId={comment.id}
+            />
+          )}
+        </div>
+        {comment.children && (
+          <CommentList
+            comments={comment.children}
+            onReplyClick={onReplyClick}
+            selectedCommentId={selectedCommentId}
+            showReplyInput={showReplyInput}
+            replyContent={replyContent}
+            setReplyContent={setReplyContent}
+            handleCancelReply={handleCancelReply}
+            handleReplySubmit={handleReplySubmit}
+            onDeleteComment={onDeleteComment}
+            currentUserId={currentUserId}
+            level={level + 1}
+          />
+        )}
+      </div>
+    ))}
+  </div>
+);
+
 // 전체 페이지 컴포넌트
 const TalentDetail2 = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
-
   const { id } = useParams();
   const [talentData, setTalentData] = useState();
+  const [comments, setComments] = useState([]);
+  const [newCommentContent, setNewCommentContent] = useState("");
+  const [showReplyInput, setShowReplyInput] = useState(false);
+  const [replyContent, setReplyContent] = useState("");
+  const [selectedCommentId, setSelectedCommentId] = useState(null);
 
   useEffect(() => {
     fetchData();
+    fetchComments();
   }, []);
 
   const fetchData = async () => {
@@ -376,11 +674,35 @@ const TalentDetail2 = () => {
   };
   console.log(talentData);
 
+  const fetchComments = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_SERVER}/v1/comment/talent/${id}`
+      );
+      setComments(response.data);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
+
   return (
     <div>
       <FloatingAssets />
       <CommonHero />
-      <CareerSingle talentData={talentData} user={user} />
+      <CareerSingle 
+        talentData={talentData} 
+        user={user} 
+        comments={comments}
+        setComments={setComments}
+        newCommentContent={newCommentContent}
+        setNewCommentContent={setNewCommentContent}
+        showReplyInput={showReplyInput}
+        setShowReplyInput={setShowReplyInput}
+        replyContent={replyContent}
+        setReplyContent={setReplyContent}
+        selectedCommentId={selectedCommentId}
+        setSelectedCommentId={setSelectedCommentId}
+      />
     </div>
   );
 };
