@@ -106,6 +106,26 @@ const CareerSingle = ({
     }
   };
 
+
+  const handleTalentExchange = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/v1/talent/talentExchange/${talentData.id}`,
+        {},
+        {
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+      toast.success("재능 교환 요청이 성공적으로 전송되었습니다.");
+    } catch (error) {
+      console.error("Error requesting talent exchange:", error);
+      toast.error("재능 교환 요청 중 오류가 발생했습니다.");
+    }
+  };
+
   const handleScrap = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -504,6 +524,13 @@ const CareerSingle = ({
                 onClick={handleScrap}
               >
                 스크랩
+              </a>
+              <a
+                className="btn btn-primary mt-6 block w-full"
+                href="#"
+                onClick={handleTalentExchange}
+              >
+                재능교환 요청
               </a>
             </div>
             {/* Sr. React Native Developer 섹션 */}
