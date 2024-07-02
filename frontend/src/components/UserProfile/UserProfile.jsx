@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import PasswordModal from "./PasswordModal";
 import { Link } from "react-router-dom";
+import ApproveModal from "./ApproveModal ";
 
 const UserProfile = () => {
   const [job, setJob] = useState("");
@@ -19,6 +20,8 @@ const UserProfile = () => {
   const [exchangeRequests, setExchangeRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   const { user } = useSelector((state) => state.user);
 
@@ -56,6 +59,46 @@ const UserProfile = () => {
       default:
         break;
     }
+  };
+
+  const handleRequestClick = (request) => {
+    setSelectedRequest(request);
+    setShowApproveModal(true);
+  };
+
+  const handleApproveModalClose = () => {
+    setShowApproveModal(false);
+    setSelectedRequest(null);
+  };
+
+  const handleApproveRequest = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      console.log(
+        "재능 아이디 확인 합니다 =================== ",
+        selectedRequest.talentId
+      );
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/v1/talent/talentExchange/${selectedRequest.talentId}/approve`,
+        {
+          guestId: selectedRequest.requesterId,
+        },
+        {
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("교환 요청이 수락되었습니다.");
+        fetchExchangeRequests(); // 목록 새로고침
+      }
+    } catch (error) {
+      console.error("Error approving exchange request:", error);
+      toast.error("요청 수락 중 오류가 발생했습니다.");
+    }
+    handleApproveModalClose();
   };
 
   const handleWithdraw = async () => {
@@ -276,7 +319,10 @@ const UserProfile = () => {
               </thead>
               <tbody>
                 {scrapList.map((scrapItem) => (
-                  <tr key={scrapItem.id} className="cursor-pointer hover:bg-gray-50">
+                  <tr
+                    key={scrapItem.id}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                       <Link to={`/talent/${scrapItem.id}`}>
                         {scrapItem.title}
@@ -288,41 +334,51 @@ const UserProfile = () => {
             </table>
           </div>
         );
-        case "exchangeRequests":
-          return (
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-auto border-collapse overflow-hidden rounded-lg border-gray-200 bg-white shadow-md">
-                <thead className="border-b bg-gray-100">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">요청자 ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">제목</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">가르칠 주제</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">배울 주제</th>
+      case "exchangeRequests":
+        return (
+          <div className="overflow-x-auto">
+            <table className="min-w-full table-auto border-collapse overflow-hidden rounded-lg border-gray-200 bg-white shadow-md">
+              <thead className="border-b bg-gray-100">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    요청자 ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    제목
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    가르칠 주제
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    배울 주제
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {exchangeRequests.map((request) => (
+                  <tr
+                    key={`${request.talentId}-${request.requesterId}`}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleRequestClick(request)}
+                  >
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                      {request.requesterId}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {request.title}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {request.teachingSubject}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {request.teachedSubject}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {exchangeRequests.map((request) => (
-                    <tr key={`${request.talentId}-${request.requesterId}`} className="cursor-pointer hover:bg-gray-50">
-                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                        <Link to={`/exchange-request/${request.talentId}`}>
-                          {request.requesterId}
-                        </Link>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                        {request.title}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                        {request.teachingSubject}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                        {request.teachedSubject}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          );
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
       default:
         return null;
     }
@@ -434,6 +490,14 @@ const UserProfile = () => {
       <PasswordModal
         isOpen={showPasswordModal}
         onClose={handlePasswordModalClose}
+      />
+
+      {/* {renderTabContent()} */}
+      <ApproveModal
+        isOpen={showApproveModal}
+        onClose={handleApproveModalClose}
+        onApprove={handleApproveRequest}
+        requesterId={selectedRequest?.requesterId}
       />
     </div>
   );
